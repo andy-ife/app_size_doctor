@@ -21,3 +21,4 @@
 17. Compression client should use fs, not dart:io directly.
 18. Compressor should check for unused assets and advice deletion. It does NOT compress unused assets
 19. Allow users to set compression level
+20. Add interactive picker for user to select files to NOT clean or NOT compress

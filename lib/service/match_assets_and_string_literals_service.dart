@@ -1,7 +1,7 @@
 import 'package:path/path.dart' as p;
 
-class FindUsedAssetsService {
-  const FindUsedAssetsService(
+class MatchAssetsAndStringLiteralsService {
+  const MatchAssetsAndStringLiteralsService(
       {required this.assetFiles, required this.allNormalizedLiterals});
 
   final Set<String> assetFiles;
@@ -38,12 +38,7 @@ class FindUsedAssetsService {
       });
 
       if (isUsed) {
-        try {
-          usedAssetPaths.add(assetPath);
-        } catch (e) {
-          // Do nothing. We should almost never throw errors here
-          // And if we do, user already likely uses the asset in his app
-        }
+        usedAssetPaths.add(assetPath);
       }
     }
     return usedAssetPaths;

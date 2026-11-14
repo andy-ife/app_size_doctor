@@ -3,7 +3,7 @@ import 'package:asset_doctor/app/analysis_printer.dart';
 import 'package:asset_doctor/app/asset_cleaner.dart';
 import 'package:asset_doctor/app/asset_compressor.dart';
 import 'package:asset_doctor/asset_doctor.dart';
-import 'package:asset_doctor/app/app_initialization.dart';
+import 'package:asset_doctor/app/asset_usage_scanner.dart';
 import 'package:asset_doctor/ui/cli.dart';
 import 'package:path/path.dart' as p;
 
@@ -30,12 +30,11 @@ class App {
     }
 
     // App
-
     final projectRoot = Directory.current.path;
     final ignoredDirs = ['test', 'build'];
     final pubspecPath = p.join(projectRoot, 'pubspec.yaml');
 
-    final app = AppInitialization(
+    final scanner = AssetUsageScanner(
         projectRoot: projectRoot,
         ignoredDirs: ignoredDirs,
         pubspecPath: pubspecPath);
@@ -47,7 +46,7 @@ class App {
       return;
     }
 
-    final initialData = await app.init();
+    final initialData = await scanner.init();
 
     // Start
     final assetDoctor = AssetDoctor(
@@ -55,13 +54,13 @@ class App {
         assetCleaner: AssetCleaner(
             allAssets: initialData.allAssets,
             usedAssets: initialData.usedAssets,
-            fs: app.fs),
+            fs: scanner.fs),
         assetCompressor:
-            AssetCompressor(usedAssets: initialData.usedAssets, fs: app.fs),
+            AssetCompressor(usedAssets: initialData.usedAssets, fs: scanner.fs),
         analysisPrinter: AnalysisPrinter(
             usedAssets: initialData.usedAssets,
             pubspecAssets: initialData.pubspecAssets,
-            fs: app.fs));
+            fs: scanner.fs));
 
     await assetDoctor.run();
     exit(0);

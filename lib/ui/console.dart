@@ -7,6 +7,7 @@ const String red = '\x1B[31m';
 const String green = '\x1B[32m';
 const String yellow = '\x1B[33m';
 const String blue = '\x1B[34m';
+const String black = '\x1B[0;90m';
 const String cyan = '\x1B[96m';
 const String cyanBold = '\x1B[1;96m';
 

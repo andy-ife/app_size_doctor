@@ -162,7 +162,7 @@ class AnalysisPrinter {
         }
       } else {
         console.printInfo(
-            'All declared assets in pubspec.yaml appear to be referenced.');
+            'All declared assets in pubspec.yaml seem to be referenced.');
       }
       final undeclaredUsedAssets =
           getUsedInAButNotB(usedAssets, declaredAssetsInPubspec)..sort();

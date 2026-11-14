@@ -1,8 +1,8 @@
-class FindAllStringLiteralsService {
-  const FindAllStringLiteralsService({required this.content});
+class FindAllStringLiteralsInFileService {
+  const FindAllStringLiteralsInFileService({required this.content});
   final String content;
 
-  /// Return all string literals from a blob of text from a file
+  /// Return all string literals from a single file's [content]
   Set<String> run() {
     final allNormalizedLiterals = <String>{};
     final stringLiteralRegex = RegExp(
@@ -46,4 +46,3 @@ class FindAllStringLiteralsService {
     return content?.trim();
   }
 }
-

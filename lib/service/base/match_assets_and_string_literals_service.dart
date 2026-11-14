@@ -1,7 +1,7 @@
 import 'package:path/path.dart' as p;
 
-class FindUsedAssetsService {
-  const FindUsedAssetsService(
+class MatchAssetsAndStringLiteralsService {
+  const MatchAssetsAndStringLiteralsService(
       {required this.assetFiles, required this.allNormalizedLiterals});
 
   final Set<String> assetFiles;

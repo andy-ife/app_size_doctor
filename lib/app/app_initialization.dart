@@ -1,8 +1,8 @@
 import 'package:asset_doctor/data/file_system_client.dart';
 import 'package:asset_doctor/directories.dart';
 import 'package:asset_doctor/service/extract_pubspec_assets_service.dart';
-import 'package:asset_doctor/service/base/find_all_string_literals_service.dart';
-import 'package:asset_doctor/service/base/find_used_assets_service.dart';
+import 'package:asset_doctor/service/base/find_all_string_literals_in_file_service.dart';
+import 'package:asset_doctor/service/base/match_assets_and_string_literals_service.dart';
 import 'package:asset_doctor/ui/console.dart';
 import 'package:path/path.dart' as p;
 
@@ -57,7 +57,8 @@ class AppInitialization {
   Set<String> getAllNormalizedLiterals() {
     return _mapAllDartFilesInProject((curFile) {
       final literals =
-          FindAllStringLiteralsService(content: fs.readAsString(curFile)).run();
+          FindAllStringLiteralsInFileService(content: fs.readAsString(curFile))
+              .run();
       return literals;
     });
   }
@@ -69,7 +70,7 @@ class AppInitialization {
 
   Set<String> getUsedAssets(
       Set<String> allAssets, Set<String> allNormalizedLiterals) {
-    return FindUsedAssetsService(
+    return MatchAssetsAndStringLiteralsService(
             assetFiles: allAssets, allNormalizedLiterals: allNormalizedLiterals)
         .run();
   }

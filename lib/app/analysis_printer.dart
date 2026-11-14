@@ -60,7 +60,6 @@ class AnalysisPrinter {
     int totalLocalizationExcluded = countFilesInTree(result.excludedTree);
     final totalUnused = totalUnusedForDeletion + totalLocalizationExcluded;
     console.printInfo('\nSummary:');
-    console.printDivider();
 
     console.printInfo('• Total assets (excluding hidden): ',
         end: totalAssetsInDir.toString());
@@ -88,7 +87,6 @@ class AnalysisPrinter {
           end:
               '${((totalUnusedForDeletion / totalAssetsInDir) * 100).toStringAsFixed(1)}%');
     }
-    console.printDivider();
   }
 
   void printCompressAnalysis(CompressResult result) {
@@ -120,7 +118,6 @@ class AnalysisPrinter {
         result.usedAssets.difference(selectedAssets).length;
 
     console.printInfo('\nSummary:');
-    console.printDivider();
     console.printInfo('• Total assets (excluding hidden): ',
         end: totalAssets.toString());
 
@@ -135,7 +132,6 @@ class AnalysisPrinter {
           end:
               '${((totalForCompression / totalAssets) * 100).toStringAsFixed(1)}%');
     }
-    console.printDivider();
   }
 
   void printPubspecAnalysis() {
@@ -173,7 +169,7 @@ class AnalysisPrinter {
           console.printInfo('- $asset');
         }
         console.printInfo(
-            '💡 Tip: Consider declaring used assets in pubspec.yaml under the `assets:` section.');
+            'Tip: Consider declaring used assets in pubspec.yaml under the `assets:` section.');
       }
       console.printInfo('-------------------------');
     } else {

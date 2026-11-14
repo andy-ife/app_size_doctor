@@ -14,7 +14,7 @@
 10. ~~Consider Move the complex work from app.dart to file_utils~~
 11. Add analysis cli mode
 12. Upgrade image_compression dep. It depends on mime 1.0.0 which is causing issues in some projects
-13. Handle errors in the application layer
+13. Define app Exceptions, throw them appropriately and handle them in the application layer (or maybe app.dart)
 14. Work on video and audio compression layer
 15. Allow user to choose 'unused' assets to keep (not delete), and 'used' assets to NOT compress
 16. Ensure the output file format after compression is same as input. Consider adding option for users to allow changing file format or not

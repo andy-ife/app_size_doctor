@@ -37,6 +37,10 @@ class Console {
     printHint('=============\n');
   }
 
+  void printSubHeader(String title) {
+    _print('\n$cyanBold$title$reset');
+  }
+
   void printDivider() {
     printHint('=============');
   }
@@ -46,8 +50,8 @@ class Console {
     _print('\n$red$message$reset\n');
   }
 
-  void printHint(String message, {bool bold = false}) {
-    _print('${bold ? cyanBold : cyan}$message$reset');
+  void printHint(String message) {
+    _print('$cyan$message$reset');
   }
 
   void printInfo(String message, {String? end}) {

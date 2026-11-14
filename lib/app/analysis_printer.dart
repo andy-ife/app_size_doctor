@@ -4,30 +4,34 @@ import 'package:asset_doctor/data/file_system_client.dart';
 import 'package:asset_doctor/ui/console.dart';
 import 'package:asset_doctor/ui/extension.dart';
 import 'package:asset_doctor/ui/tree.dart';
+import 'package:path/path.dart' as p;
 
 class AnalysisPrinter {
   AnalysisPrinter(
       {required this.usedAssets,
       required this.pubspecAssets,
       required this.fs,
+      String? projectRoot,
       Console? console,
       TreePrinter? tree})
-      : console = console ?? const Console(),
+      : projectRoot = projectRoot ?? fs.currentDir,
+        console = console ?? const Console(),
         tree = tree ?? TreePrinter();
 
   final Set<String> usedAssets;
   final List<String> pubspecAssets;
   final FileSystemClient fs;
 
+  late final String projectRoot;
   late final Console console;
   late final TreePrinter tree;
 
   void printCleanAnalysis(CleanResult result) {
     console.printHeader('Asset Usage Analysis');
 
-    console.printHint(
-        'Likely Used assets (Their path/name was found as a string literal somewhere in the code):',
-        bold: true);
+    console.printSubHeader(
+      'Likely Used assets (Their path/name was found as a string literal somewhere in the code):',
+    );
     if (result.usedAssets.isNotEmpty) {
       for (var asset in result.usedAssets) {
         console.printDefault('• $asset');
@@ -36,9 +40,9 @@ class AnalysisPrinter {
       console.printDefault('None found.');
     }
 
-    console.printHint(
-        '\nExcluded assets (They seem unused, but they are JSON files with content):',
-        bold: true);
+    console.printSubHeader(
+      'Excluded assets (They seem unused, but they are JSON files with content):',
+    );
     if (result.excludedTree.isNotEmpty) {
       tree.print(paths: result.excludedTree, prefix: '');
     } else {
@@ -61,7 +65,7 @@ class AnalysisPrinter {
     final totalUsedAssets = result.usedAssets.length;
     int totalLocalizationExcluded = countFilesInTree(result.excludedTree);
     final totalUnused = totalUnusedForDeletion + totalLocalizationExcluded;
-    console.printHint('\nSummary:', bold: true);
+    console.printSubHeader('Summary:');
 
     console.printInfo('• Total assets (excluding hidden): ',
         end: totalAssetsInDir.toString());
@@ -94,9 +98,9 @@ class AnalysisPrinter {
   void printCompressAnalysis(CompressResult result) {
     console.printHeader('Asset Compression Analysis');
 
-    console.printHint(
-        'Likely Used assets (Found in assets/ and path/name found as a string somewhere in the code):',
-        bold: true);
+    console.printSubHeader(
+      'Likely Used assets (Found in assets/ and path/name found as a string somewhere in the code):',
+    );
     if (result.usedAssets.isNotEmpty) {
       for (var asset in result.usedAssets) {
         console.printDefault('• $asset');
@@ -120,7 +124,7 @@ class AnalysisPrinter {
     final totalNotSelected =
         result.usedAssets.difference(selectedAssets).length;
 
-    console.printHint('\nSummary:', bold: true);
+    console.printSubHeader('Summary:');
     console.printInfo('• Total assets (excluding hidden): ',
         end: totalAssets.toString());
 
@@ -144,40 +148,62 @@ class AnalysisPrinter {
         pubspecAssets.where((e) => fs.isFile(e) || fs.isDirectory(e));
 
     if (declaredAssetsInPubspec.isNotEmpty) {
-      final unusedDeclaredAssets = declaredAssetsInPubspec
-          .where((assetPath) => !usedAssets.contains(assetPath))
-          .toList()
-        ..sort();
-      console.printInfo('\n--- Pubspec.yaml Info ---');
+      final unusedDeclaredAssets =
+          getUsedInAButNotB(declaredAssetsInPubspec, usedAssets)..sort();
+      console.printHeader('pubspec.yaml Analysis');
       console.printInfo(
           'Found ${declaredAssetsInPubspec.length} assets declared in pubspec.yaml');
       if (unusedDeclaredAssets.isNotEmpty) {
-        console.printInfo(
-            '${unusedDeclaredAssets.length} declared assets were found in assets/ but not referenced in code');
+        console.printSubHeader(
+          '${unusedDeclaredAssets.length} declared assets were found in the assets section but not referenced in code:',
+        );
         for (var asset in unusedDeclaredAssets) {
-          console.printInfo('- $asset');
+          console.printInfo('• $asset');
         }
       } else {
         console.printInfo(
             'All declared assets in pubspec.yaml appear to be referenced.');
       }
-      final undeclaredUsedAssets = usedAssets
-          .where((assetPath) => !declaredAssetsInPubspec.contains(assetPath))
-          .toList()
-        ..sort();
+      final undeclaredUsedAssets =
+          getUsedInAButNotB(usedAssets, declaredAssetsInPubspec)..sort();
       if (undeclaredUsedAssets.isNotEmpty) {
-        console.printInfo(
+        console.printSubHeader(
             '${undeclaredUsedAssets.length} files in assets/ were used but *not* declared in pubspec.yaml:');
         for (var asset in undeclaredUsedAssets) {
-          console.printInfo('- $asset');
+          console.printInfo('• $asset');
         }
-        console.printInfo(
-            'Tip: Consider declaring used assets in pubspec.yaml under the `assets:` section.');
+        console.printHint(
+            '\nTip: Consider declaring used assets in pubspec.yaml under the `assets:` section.');
       }
-      console.printInfo('-------------------------');
+      console.printDivider();
     } else {
       console.printInfo('None found');
     }
+  }
+
+  /// Get folders referenced in a but not in b
+  /// Handles sub folders, partial path
+  List<String> getUsedInAButNotB(Iterable<String> a, Iterable<String> b) {
+    return a.where((assetPath) {
+      final relativePath =
+          p.relative(assetPath, from: projectRoot).replaceAll('\\', '/');
+      final dirs = p.split(relativePath);
+
+      // generate all possible subdirs
+      final subdirs = <String>{};
+      for (var i = 0; i < dirs.length; i++) {
+        for (var j = i; j < dirs.length; j++) {
+          if (j == i) {
+            subdirs.add(dirs[j]);
+          } else {
+            subdirs.add('/${dirs.sublist(i, j).join('/')}');
+          }
+        }
+      }
+      // check if any of the subdirs are contained in pubspec
+      return subdirs
+          .every((subdir) => !b.any((bPath) => bPath.contains(subdir)));
+    }).toList();
   }
 
   int countFilesInTree(Map<String, dynamic> node) {

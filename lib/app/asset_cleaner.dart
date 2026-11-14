@@ -40,16 +40,18 @@ class AssetCleaner {
     List<String> unusedAssetsForDeletion = <String>[]; // Use List for indexing
     final localizationAssetsExcluded = <String>[];
     double spaceOfUnusedAssetsBeforeClean = 0;
+    double potentiallySavedSpace = 0;
 
     for (final assetPath in potentialUnusedPaths) {
       final path = p.join(projectRoot, assetPath);
       bool isJson = assetPath.toLowerCase().endsWith('.json');
       bool isNonEmpty = false;
+      double fileSize = 0;
       try {
         if (fs.fileExists(path)) {
-          final size = fs.lengthSync(path);
-          isNonEmpty = size > 0;
-          spaceOfUnusedAssetsBeforeClean += size;
+          fileSize = fs.lengthSync(path).toDouble();
+          isNonEmpty = fileSize > 0;
+          spaceOfUnusedAssetsBeforeClean += fileSize;
         }
       } catch (e) {
         console.printWarning('Could not check size of "$assetPath": $e');
@@ -60,6 +62,7 @@ class AssetCleaner {
         localizationAssetsExcluded.add(assetPath);
       } else {
         unusedAssetsForDeletion.add(assetPath);
+        potentiallySavedSpace += fileSize;
       }
     }
 
@@ -73,6 +76,7 @@ class AssetCleaner {
         unusedTree: unusedTree,
         excludedTree: excludedTree,
         spaceOfUnusedAssetsBeforeClean: spaceOfUnusedAssetsBeforeClean,
+        potentiallySavedSpace: potentiallySavedSpace,
         spaceOfUnusedAssetsAfterClean: null,
         hasAnalyzed: true,
         hasCleaned: false);

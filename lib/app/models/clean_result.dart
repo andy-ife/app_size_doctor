@@ -8,6 +8,7 @@ class CleanResult {
       required this.unusedTree,
       required this.excludedTree,
       required this.spaceOfUnusedAssetsBeforeClean,
+      required this.potentiallySavedSpace,
       required this.spaceOfUnusedAssetsAfterClean,
       required this.hasAnalyzed,
       required this.hasCleaned});
@@ -18,6 +19,7 @@ class CleanResult {
   final Map<String, dynamic> unusedTree;
   final Map<String, dynamic> excludedTree;
   final double spaceOfUnusedAssetsBeforeClean;
+  final double potentiallySavedSpace;
   final double? spaceOfUnusedAssetsAfterClean;
   final bool hasAnalyzed;
   final bool hasCleaned;
@@ -29,6 +31,7 @@ class CleanResult {
       Map<String, dynamic>? unusedTree,
       Map<String, dynamic>? excludedTree,
       double? spaceOfUnusedAssetsBeforeClean,
+      double? potentiallySavedSpace,
       double? Function()? spaceOfUnusedAssetsAfterClean,
       bool? hasAnalyzed,
       bool? hasCleaned}) {
@@ -41,6 +44,8 @@ class CleanResult {
         excludedTree: excludedTree ?? this.excludedTree,
         spaceOfUnusedAssetsBeforeClean: spaceOfUnusedAssetsBeforeClean ??
             this.spaceOfUnusedAssetsBeforeClean,
+        potentiallySavedSpace:
+            potentiallySavedSpace ?? this.potentiallySavedSpace,
         spaceOfUnusedAssetsAfterClean: spaceOfUnusedAssetsAfterClean == null
             ? this.spaceOfUnusedAssetsAfterClean
             : spaceOfUnusedAssetsAfterClean(),
@@ -62,6 +67,7 @@ class CleanResult {
                 .equals(excludedTree, other.excludedTree) &&
             spaceOfUnusedAssetsBeforeClean ==
                 other.spaceOfUnusedAssetsBeforeClean &&
+            potentiallySavedSpace == other.potentiallySavedSpace &&
             spaceOfUnusedAssetsAfterClean ==
                 other.spaceOfUnusedAssetsAfterClean &&
             hasAnalyzed == other.hasAnalyzed &&
@@ -76,6 +82,7 @@ class CleanResult {
       const DeepCollectionEquality().hash(unusedTree),
       const DeepCollectionEquality().hash(excludedTree),
       spaceOfUnusedAssetsBeforeClean,
+      potentiallySavedSpace,
       spaceOfUnusedAssetsAfterClean,
       hasAnalyzed,
       hasCleaned);

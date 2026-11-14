@@ -93,6 +93,9 @@ class AnalysisPrinter {
           end:
               '${((totalUnusedForDeletion / totalAssetsInDir) * 100).toStringAsFixed(1)}%');
     }
+
+    console.printSuccess(
+        '\n• Potential space saved: ${result.potentiallySavedSpace.toStorageString()}');
   }
 
   void printCompressAnalysis(CompressResult result) {
@@ -139,10 +142,75 @@ class AnalysisPrinter {
           end:
               '${((totalForCompression / totalAssets) * 100).toStringAsFixed(1)}%');
     }
+
+    console.printSuccess(
+        '\n• Estimated space saved: ${result.potentiallySavedSpace.toStorageString()}');
+  }
+
+  /// Summarize what cleaning and compression would free up without
+  /// changing any files. Meant to be more concise than the full
+  /// [printCleanAnalysis] and [printCompressAnalysis] breakdowns.
+  void printDryRunAnalysis(
+      CleanResult cleanResult, CompressResult compressResult) {
+    console.printHeader('Dry Run Analysis');
+    console.printInfo(
+        'No files were changed. Here is what Asset Doctor could free up:');
+
+    final totalForDeletion = cleanResult.unusedAssetsForDeletion.length;
+    final totalExcluded = countFilesInTree(cleanResult.excludedTree);
+    final totalForCompression = compressResult.assetsForCompression.length;
+
+    if (totalForDeletion == 0 && totalForCompression == 0) {
+      if (totalExcluded > 0) {
+        console.printSuccess('\n✨ Nothing to delete or compress.');
+        console.printInfo(
+            '• Unused but excluded from deletion (e.g., non-empty JSON): ',
+            end: totalExcluded.toString());
+      } else {
+        console.printSuccess(
+            '\n✨ Nothing to delete or compress. Your project is already lean.');
+      }
+      return;
+    }
+
+    console.printSubHeader('Cleaning');
+    if (totalForDeletion == 0) {
+      console.printDefault('  Nothing to delete.');
+    } else {
+      console.printInfo('• Assets marked for deletion: ',
+          end: totalForDeletion.toString());
+      console.printInfo('• Potential savings: ',
+          end: cleanResult.potentiallySavedSpace.toStorageString());
+    }
+    if (totalExcluded > 0) {
+      console.printInfo('• Excluded (e.g., non-empty JSON): ',
+          end: totalExcluded.toString());
+    }
+
+    console.printSubHeader('Compression');
+    if (totalForCompression == 0) {
+      console.printDefault('  Nothing to compress.');
+    } else {
+      console.printInfo('• Assets marked for compression: ',
+          end: totalForCompression.toString());
+      console.printInfo('• Total media assets size: ',
+          end: compressResult.spaceOfMediaAssetsBeforeCompress
+              .toStorageString());
+      console.printInfo('• Estimated savings: ',
+          end: compressResult.potentiallySavedSpace.toStorageString());
+    }
+
+    final totalPotentialSavings = cleanResult.potentiallySavedSpace +
+        compressResult.potentiallySavedSpace;
+    console.printSubHeader('Total Potential Savings:');
+    console.printSuccess(
+        '• Estimated total savings: ${totalPotentialSavings.toStorageString()}');
+    console.printHint(
+        '\nRun again without --dry-run to view detailed file trees and apply these changes. Your permission is required at critical steps');
   }
 
   void printPubspecAnalysis() {
-    console.printInfo('Checking pubspec.yaml for any skipped assets...');
+    console.printInfo('\nChecking pubspec.yaml for any skipped assets...');
 
     final declaredAssetsInPubspec =
         pubspecAssets.where((e) => fs.isFile(e) || fs.isDirectory(e));

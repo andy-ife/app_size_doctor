@@ -66,6 +66,7 @@ class AssetCompressor {
         assetsForCompression: assetsForCompression,
         assetsForCompressionTree: compressTree,
         spaceOfMediaAssetsBeforeCompress: spaceofMediaAssetsBeforeCompress,
+        potentiallySavedSpace: spaceofMediaAssetsBeforeCompress * 0.6,
         spaceOfMediaAssetsAfterCompress: null,
         hasAnalyzed: true,
         hasCompressed: false);

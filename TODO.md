@@ -23,3 +23,4 @@
 19. Allow users to set compression level
 20. Add interactive picker for user to select files to NOT clean or NOT compress
 21. Optimize Android and iOS regex searches. Apply correct regex to correct file types only
+22. Don't be too quick to delete files. Consider adding used, unused, and indefinite/unclear states. Lean towards keeping unclear/indefinite files

@@ -64,7 +64,7 @@ class AssetUsageScanner {
   }
 
   Set<String> getAllAssets() {
-    final assetsDirs = COMMON_ASSETS_LOCATIONS.values.expand((e) => e).toList();
+    final assetsDirs = COMMON_ASSETS_LOCATIONS[AssetDir.assets]!;
     return _findAllFilesInDirectories(assetsDirs);
   }
 

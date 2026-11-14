@@ -8,6 +8,7 @@ const String green = '\x1B[32m';
 const String yellow = '\x1B[33m';
 const String blue = '\x1B[34m';
 const String cyan = '\x1B[96m';
+const String cyanBold = '\x1B[1;96m';
 
 /// Simple wrapper around [Stdin] & [Stdout]
 class Console {
@@ -45,8 +46,8 @@ class Console {
     _print('\n$red$message$reset\n');
   }
 
-  void printHint(String message) {
-    _print('$cyan$message$reset');
+  void printHint(String message, {bool bold = false}) {
+    _print('${bold ? cyanBold : cyan}$message$reset');
   }
 
   void printInfo(String message, {String? end}) {
@@ -67,10 +68,10 @@ class Console {
 
   /// Offloads [work] to a separate Isolate, while printing [message]
   /// and a loading animation on the main Isolate
-  /// 
+  ///
   /// Important to remember that [work] runs in a new Isolate, so variables
   /// from the main Isolate are copied implicitly to the new Isolate.
-  /// Meaning that mutating them in the new Isolate will NOT reflect in the 
+  /// Meaning that mutating them in the new Isolate will NOT reflect in the
   /// old Isolate
   Future<T> printLoading<T>(
       {required String message, required T Function() work}) async {

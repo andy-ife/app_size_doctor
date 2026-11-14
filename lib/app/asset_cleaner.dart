@@ -89,7 +89,7 @@ class AssetCleaner {
     final curResult = _result!;
 
     if (curResult.unusedAssetsForDeletion.isNotEmpty) {
-      console.printInfo('Marking all unused assets for deletion...');
+      console.printWarning('\nMarking all unused assets for deletion...');
     } else {
       console.printSuccess("\n✨ Nothing to clean. No unused assets found");
       return curResult;

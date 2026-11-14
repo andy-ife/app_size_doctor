@@ -81,7 +81,7 @@ class AssetCompressor {
     final curResult = _result!;
 
     if (curResult.assetsForCompression.isNotEmpty) {
-      console.printInfo('Marking media assets for compression');
+      console.printWarning('\nMarking media assets for compression');
     }
 
     String? finalConfirm;

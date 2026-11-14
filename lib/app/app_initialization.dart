@@ -1,8 +1,8 @@
 import 'package:asset_doctor/data/file_system_client.dart';
 import 'package:asset_doctor/directories.dart';
 import 'package:asset_doctor/service/extract_pubspec_assets_service.dart';
-import 'package:asset_doctor/service/find_all_string_literals_service.dart';
-import 'package:asset_doctor/service/find_used_assets_service.dart';
+import 'package:asset_doctor/service/base/find_all_string_literals_service.dart';
+import 'package:asset_doctor/service/base/find_used_assets_service.dart';
 import 'package:asset_doctor/ui/console.dart';
 import 'package:path/path.dart' as p;
 
@@ -63,7 +63,7 @@ class AppInitialization {
   }
 
   Set<String> getAllAssets() {
-    final assetsDirs = commonAssetLocations.values.expand((e) => e).toList();
+    final assetsDirs = COMMON_ASSETS_LOCATIONS.values.expand((e) => e).toList();
     return _findAllFilesInDirectories(assetsDirs);
   }
 

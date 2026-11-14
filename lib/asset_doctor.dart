@@ -56,6 +56,9 @@ class AssetDoctor {
           }
           break;
         }
+      case CliMode.dryRun:
+        // TODO: Handle this case.
+        throw UnimplementedError();
       case CliMode.none:
         {
           break;

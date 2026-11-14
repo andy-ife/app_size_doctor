@@ -6,9 +6,9 @@ IMPORTANT!!! Show potential space savings BEFORE running clean or compression
 4. ~~Wrap libraries in classes for improved testability~~
 5. Display results by Root assets, Android, iOS, macOS, Windows, and Linux sections
 6. ~~Add getters to assetCleaner and assetCompressor. These are what assetAnalyzer, assetDoctor and others should use to access the cleaner's/compressor's properties~~
-7. Add error handling to app.dart
+7. ~~Add error handling to app.dart~~
 8. Add support for passing projectRoot and ignoredDirs in app.dart arguments
-9. Improve organisation/location of some files/deps
+9. ~~Improve organisation/location of some files/deps~~
 10. ~~Consider Move the complex work from app.dart to file_utils~~
 11. Add analysis cli mode
 12. Upgrade image_compression dep. It depends on mime 1.0.0 which is causing issues in some projects

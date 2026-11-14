@@ -38,12 +38,7 @@ class MatchAssetsAndStringLiteralsService {
       });
 
       if (isUsed) {
-        try {
-          usedAssetPaths.add(assetPath);
-        } catch (e) {
-          // Do nothing. We should almost never throw errors here
-          // And if we do, user already likely uses the asset in his app
-        }
+        usedAssetPaths.add(assetPath);
       }
     }
     return usedAssetPaths;

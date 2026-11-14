@@ -1,20 +1,20 @@
 import 'package:asset_doctor/data/file_system_client.dart';
 import 'package:asset_doctor/directories.dart';
 import 'package:asset_doctor/service/extract_pubspec_assets_service.dart';
-import 'package:asset_doctor/service/base/find_all_string_literals_in_file_service.dart';
-import 'package:asset_doctor/service/base/match_assets_and_string_literals_service.dart';
+import 'package:asset_doctor/service/find_all_string_literals_in_file_service.dart';
+import 'package:asset_doctor/service/match_assets_and_string_literals_service.dart';
 import 'package:asset_doctor/ui/console.dart';
 import 'package:path/path.dart' as p;
 
-typedef AppInitialData = ({
+typedef AssetUsageScanResults = ({
   List<String> pubspecAssets,
   Set<String> allNormalizedLiterals,
   Set<String> allAssets,
   Set<String> usedAssets
 });
 
-class AppInitialization {
-  AppInitialization({
+class AssetUsageScanner {
+  AssetUsageScanner({
     required this.projectRoot,
     required this.ignoredDirs,
     required this.pubspecPath,
@@ -29,8 +29,8 @@ class AppInitialization {
   final List<String> ignoredDirs;
   final String pubspecPath;
 
-  Future<AppInitialData> init() {
-    return console.printLoading<AppInitialData>(
+  Future<AssetUsageScanResults> init() {
+    return console.printLoading<AssetUsageScanResults>(
         message: "Finding assets and their usage",
         work: () {
           final pubspecAssets = getPubspecAssets();
@@ -83,9 +83,10 @@ class AppInitialization {
   /// Aggregate the results and return
   Set<String> _mapAllDartFilesInProject(Set<String> Function(String) mapper) {
     final result = <String>{};
-    if (fs.directoryExists(p.join(projectRoot, 'lib'))) {
+    final libDir = p.join(projectRoot, 'lib');
+    if (fs.directoryExists(libDir)) {
       try {
-        for (var entity in fs.listFilesSync(projectRoot)) {
+        for (var entity in fs.listFilesSync(libDir)) {
           if (fs.isFile(entity) &&
               entity.endsWith('.dart') &&
               !_shouldIgnore(entity)) {
@@ -93,7 +94,7 @@ class AppInitialization {
           }
         }
       } catch (e) {
-        final msg = 'Error traversing directory $projectRoot: $e';
+        final msg = 'Error traversing directory $libDir: $e';
         console.printError(msg);
         throw msg;
       }

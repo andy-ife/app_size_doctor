@@ -70,7 +70,7 @@ class AnalysisPrinter {
     console.printInfo('• Total assets (excluding hidden): ',
         end: totalAssetsInDir.toString());
 
-    console.printInfo('• Potentially Used assets: ',
+    console.printInfo('• Likely Used assets: ',
         end: totalUsedAssets.toString());
 
     console.printInfo(
@@ -113,7 +113,7 @@ class AnalysisPrinter {
     }
 
     console.printWarning(
-        '\n🔨 Assets MARKED FOR COMPRESSION (Potentially Used assets only):');
+        '\n🔨 Assets MARKED FOR COMPRESSION (Likely Used assets only):');
     if (result.assetsForCompression.isNotEmpty) {
       console.printWarning('(${result.assetsForCompression.length} files)');
       tree.print(paths: result.assetsForCompressionTree, prefix: '');

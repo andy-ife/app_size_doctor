@@ -103,9 +103,9 @@ class AssetCleaner {
         shouldKeepSome = console.read();
         if (shouldKeepSome.isYes) {
           final toDelete = curResult.unusedAssetsForDeletion;
-
+          
           final indexes = console.printMultiSelect(
-              message: '\n(Press <space> to select, <enter> to confirm)\n',
+              message: '(Press <space> to select, <enter> to confirm)',
               options: toDelete);
 
           final toKeep = toDelete.indexed

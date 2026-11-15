@@ -133,12 +133,10 @@ class Console {
       required List<String> options,
       List<bool>? defaults}) {
     try {
+      print('');
       return MultiSelect.withTheme(
         prompt: message,
-        options: options.indexed.map((e) {
-          final number = '${e.$1 + 1}.'.padRight(5);
-          return '$number ${e.$2}';
-        }).toList(),
+        options: options,
         defaults: defaults,
         theme: Theme.basicTheme.copyWith(
             inputSuffix: '',

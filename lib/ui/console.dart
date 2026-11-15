@@ -34,11 +34,11 @@ class Console {
   }
 
   void showCursor() {
-    write('\n\x1B[?25h');
+    write('\x1B[?25h');
   }
 
-  void hideCursor({bool newline = true}) {
-    write('\x1B[?25l${newline ? '\n' : ''}');
+  void hideCursor() {
+    write('\x1B[?25l\n}');
   }
 
   void resetConsole() {
@@ -61,8 +61,8 @@ class Console {
     printHint('=============\n');
   }
 
-  void printSubHeader(String title) {
-    printInfo('\n$bold$title$reset');
+  void printSubHeader(String title, {bool nl = true}) {
+    printInfo('${nl ? '\n' : ''}$bold$title$reset');
   }
 
   void printDivider() {
@@ -118,7 +118,7 @@ class Console {
     });
 
     int i = 2;
-    hideCursor(newline: false);
+    hideCursor();
     do {
       String dots = '.' * ((i % 3) + 1);
       write('\r$message${dots.padRight(4)}');

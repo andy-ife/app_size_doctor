@@ -30,8 +30,8 @@ class AnalysisPrinter {
     console.printHeader('Asset Usage Analysis');
 
     console.printSubHeader(
-      'Potentially Used assets (Their path/name was found as a string literal somewhere in the code):',
-    );
+        'Potentially Used assets (Their path/name was found as a string literal somewhere in the code):',
+        nl: false);
     if (result.usedAssets.isNotEmpty) {
       for (var asset in result.usedAssets) {
         console.printDefault('• $asset');
@@ -105,8 +105,8 @@ class AnalysisPrinter {
     console.printHeader('Asset Compression Analysis');
 
     console.printSubHeader(
-      'Potentially Used assets (Found in assets/ and path/name found as a string somewhere in the code):',
-    );
+        'Potentially Used assets (Found in assets/ and path/name found as a string somewhere in the code):',
+        nl: false);
     if (result.usedAssets.isNotEmpty) {
       for (var asset in result.usedAssets) {
         console.printDefault('• $asset');

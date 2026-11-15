@@ -90,10 +90,46 @@ class AssetCleaner {
       return null;
     }
 
-    final curResult = _result!;
+    var curResult = _result!;
 
     if (curResult.unusedAssetsForDeletion.isNotEmpty) {
-      console.printWarning('\nMarking all unused assets for deletion...');
+      String? shouldKeepSome;
+      int? totalUnused;
+      console.printInfo(
+          '\n${curResult.unusedAssetsForDeletion.length} assets are marked for deletion. ');
+      console.printInputPrompt(
+          'Select some assets to keep (remove from deletion list)? (Y/N): ');
+      do {
+        shouldKeepSome = console.read();
+        if (shouldKeepSome.isYes) {
+          final toDelete = curResult.unusedAssetsForDeletion;
+
+          final indexes = console.printMultiSelect(
+              message: '\n(Press <space> to select, <enter> to confirm)\n',
+              options: toDelete);
+
+          final toKeep = toDelete.indexed
+              .where((e) => indexes.contains(e.$1))
+              .map((e) => e.$2);
+
+          totalUnused = toDelete.length;
+          curResult = curResult.copyWith(
+              unusedAssetsForDeletion:
+                  toDelete.where((e) => !toKeep.contains(e)).toList());
+        } else if (shouldKeepSome.isNo) {
+          // do nothing. Continue code
+        } else {
+          console.printError('Invalid option. Please enter "y" or "n"');
+        }
+      } while (!shouldKeepSome.isYesOrNo);
+
+      if (curResult.unusedAssetsForDeletion.isNotEmpty) {
+        console.printWarning(
+            '\nMarking ${shouldKeepSome.isYes ? '${curResult.unusedAssetsForDeletion.length}/$totalUnused' : 'all'} unused assets for deletion...');
+      } else {
+        console.printSuccess("\n✨ Nothing to clean. Keeping all assets");
+        return curResult;
+      }
     } else {
       console.printSuccess("\n✨ Nothing to clean. No unused assets found");
       return curResult;

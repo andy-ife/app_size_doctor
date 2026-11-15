@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:isolate';
 
+import 'package:interact_cli/interact_cli.dart';
+
 const String reset = '\x1B[0m';
 const String red = '\x1B[31m';
 const String green = '\x1B[32m';
@@ -12,21 +14,41 @@ const String cyanBold = '\x1B[1;96m';
 
 /// Simple wrapper around [Stdin] & [Stdout]
 class Console {
-  const Console();
+  Console();
+
+  int _linesCount = 0;
+
+  /// Shows how many lines are currently being used for rendering
+  int get linesCount => _linesCount;
 
   void _print(String value) {
+    _linesCount++;
     return print(value);
   }
 
   void write(String value) {
+    if (value.contains('\n')) _linesCount++;
     return stdout.write(value);
+  }
+
+  void showCursor() {
+    write('\x1B[?25h');
+  }
+
+  void hideCursor() {
+    write('\x1B[?25l\n');
+  }
+
+  void resetConsole() {
+    showCursor();
+    write(reset); // reset terminal colors
   }
 
   String? read() {
     try {
       return stdin.readLineSync();
     } on StdinException {
-      stdout.write('\x1B[?25h'); // show cursor
+      showCursor();
       exit(0); // app cancelled by user (Ctrl+C)
     }
   }
@@ -93,14 +115,48 @@ class Console {
     });
 
     int i = 2;
-    write('\x1B[?25l\n'); // hide cursor
+    hideCursor();
     do {
       String dots = '.' * ((i % 3) + 1);
       write('\r$message${dots.padRight(4)}');
       i++;
       await Future.delayed(const Duration(milliseconds: 500));
     } while (loading);
-    write('\x1B[?25h\n'); // show cursor
+    showCursor();
     return result;
+  }
+
+  /// Asks the user for multiple options check by using the SpaceBar.
+  /// Returns a list of selected indexes.
+  List<int> printMultiSelect(
+      {required String message,
+      required List<String> options,
+      List<bool>? defaults}) {
+    try {
+      return MultiSelect.withTheme(
+        prompt: message,
+        options: options.indexed.map((e) {
+          final number = '${e.$1 + 1}.'.padRight(5);
+          return '$number ${e.$2}';
+        }).toList(),
+        defaults: defaults,
+        theme: Theme.basicTheme.copyWith(
+            inputSuffix: '',
+            successSuffix: '',
+            messageStyle: (x) => '$cyan$x$reset',
+            hintStyle: (x) => '$cyan$x$reset',
+            errorStyle: (x) => '$red$x$reset',
+            activeItemStyle: (x) => '$green$x$reset',
+            inactiveItemStyle: (x) => x,
+            activeItemPrefix: '$green>$reset',
+            checkedItemPrefix: '$green✔$reset',
+            uncheckedItemPrefix: ' ',
+            pickedItemPrefix: '$green✔$reset',
+            unpickedItemPrefix: ' '),
+      ).interact();
+    } catch (e) {
+      resetConsole();
+      rethrow;
+    }
   }
 }

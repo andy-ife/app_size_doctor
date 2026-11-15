@@ -5,6 +5,7 @@ import 'package:asset_doctor/app/asset_compressor.dart';
 import 'package:asset_doctor/asset_doctor.dart';
 import 'package:asset_doctor/app/asset_usage_scanner.dart';
 import 'package:asset_doctor/ui/cli.dart';
+import 'package:asset_doctor/ui/console.dart';
 import 'package:path/path.dart' as p;
 
 const test_asset_reference2 = 'test_pic2.jpg';
@@ -13,7 +14,7 @@ const test_asset_reference4 = 'test_aud1.mp3';
 
 class App {
   static void cleanup() async {
-    stdout.write('\x1B[?25h'); // show cursor
+    Console().resetConsole();
   }
 
   static void start(List<String> args) async {

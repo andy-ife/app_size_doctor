@@ -15,7 +15,7 @@ class AnalysisPrinter {
       Console? console,
       TreePrinter? tree})
       : projectRoot = projectRoot ?? fs.currentDir,
-        console = console ?? const Console(),
+        console = console ?? Console(),
         tree = tree ?? TreePrinter();
 
   final Set<String> usedAssets;

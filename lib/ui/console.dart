@@ -80,7 +80,7 @@ class Console {
   }
 
   void printInputPrompt(String message) {
-    write('$bold$message$reset');
+    write('${'$cyan>$reset'}  $bold$message$reset');
   }
 
   void printInfo(String message) {
@@ -149,7 +149,7 @@ class Console {
             errorStyle: (x) => '$red$x$reset',
             activeItemStyle: (x) => x,
             inactiveItemStyle: (x) => '$light$x$reset',
-            activeItemPrefix: '>',
+            activeItemPrefix: '$cyan>$reset',
             checkedItemPrefix: '$cyan✔$reset',
             uncheckedItemPrefix: ' ',
             pickedItemPrefix: '$cyan✔$reset',

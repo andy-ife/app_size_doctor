@@ -31,8 +31,8 @@ class AssetDoctor {
           final compressResult = await compress();
           if (compressResult == null) return;
 
-          analysisPrinter.printPubspecAnalysis();
           if (cleanResult.hasCleaned || compressResult.hasCompressed) {
+            analysisPrinter.printPubspecAnalysis();
             analysisPrinter.printWorkSummary(cleanResult, compressResult);
           }
           break;
@@ -43,8 +43,8 @@ class AssetDoctor {
           final result = await clean();
           if (result == null) return;
 
-          analysisPrinter.printPubspecAnalysis();
           if (result.hasCleaned) {
+            analysisPrinter.printPubspecAnalysis();
             analysisPrinter.printWorkSummary(result, null);
           }
           break;
@@ -54,8 +54,8 @@ class AssetDoctor {
           final result = await compress();
           if (result == null) return;
 
-          analysisPrinter.printPubspecAnalysis();
           if (result.hasCompressed) {
+            analysisPrinter.printPubspecAnalysis();
             analysisPrinter.printWorkSummary(null, result);
           }
           break;

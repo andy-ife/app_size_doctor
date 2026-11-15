@@ -40,14 +40,14 @@ class AnalysisPrinter {
       console.printDefault('None found.');
     }
 
-    console.printSubHeader(
-      'Excluded assets (Unused JSON files):',
-    );
-    if (result.excludedTree.isNotEmpty) {
-      tree.print(paths: result.excludedTree, prefix: '');
-    } else {
-      console.printDefault('None found.');
-    }
+    // console.printSubHeader(
+    //   'Excluded assets (Unused JSON files):',
+    // );
+    // if (result.excludedTree.isNotEmpty) {
+    //   tree.print(paths: result.excludedTree, prefix: '');
+    // } else {
+    //   console.printDefault('None found.');
+    // }
 
     console.printWarning('\n🗑️  Unused assets MARKED FOR DELETION:');
     int totalUnusedForDeletion = countFilesInTree(result.unusedTree);

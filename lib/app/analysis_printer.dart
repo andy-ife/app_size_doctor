@@ -144,7 +144,7 @@ class AnalysisPrinter {
     }
 
     console.printSuccess(
-        '\n• Estimated space saved: ${result.potentiallySavedSpace.toStorageString()}');
+        '\n• Estimated space to be saved: ${result.potentiallySavedSpace.toStorageString()}');
   }
 
   /// Summarize what cleaning and compression would free up without
@@ -206,7 +206,7 @@ class AnalysisPrinter {
     console.printSuccess(
         '• Estimated total savings: ${totalPotentialSavings.toStorageString()}');
     console.printHint(
-        '\nRun again without --dry-run to view detailed file trees and apply these changes. Your permission is required at critical steps');
+        '\nRun again without --dry-run to view detailed file trees and apply these changes. Your permission is required during critical steps');
   }
 
   void printPubspecAnalysis() {

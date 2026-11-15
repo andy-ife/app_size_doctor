@@ -90,7 +90,8 @@ class AssetCompressor {
     console.printInfo(
         '\nFINAL CONFIRMATION: You are about to compress ${curResult.assetsForCompression.length} asset(s).');
     do {
-      console.write('Proceed with compression? It may take a while (Y/N): ');
+      console.printInputPrompt(
+          'Proceed with compression? It may take a while (Y/N): ');
       finalConfirm = console.read();
       if (finalConfirm.isYes) {
         freedSpace += await console.printLoading<double>(

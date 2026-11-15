@@ -104,7 +104,7 @@ class AssetCleaner {
     console.printInfo(
         '\nFINAL CONFIRMATION: You are about to delete ${curResult.unusedAssetsForDeletion.length} asset(s).');
     do {
-      console.write('Proceed with deletion? (Y/N): ');
+      console.printInputPrompt('Proceed with deletion? (Y/N): ');
       finalConfirm = console.read();
       if (finalConfirm.isYes) {
         freedSpace += await console.printLoading<double>(

@@ -56,11 +56,24 @@ class AssetDoctor {
           }
           break;
         }
+      case CliMode.dryRun:
+        {
+          await dryRun();
+          analysisPrinter.printPubspecAnalysis();
+          break;
+        }
       case CliMode.none:
         {
           break;
         }
     }
+  }
+
+  Future<void> dryRun() async {
+    final cleanResult = assetCleaner.analyze();
+    final compressResult = assetCompressor.analyze();
+
+    analysisPrinter.printDryRunAnalysis(cleanResult, compressResult);
   }
 
   Future<CleanResult?> clean() async {

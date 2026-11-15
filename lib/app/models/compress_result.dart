@@ -6,6 +6,7 @@ class CompressResult {
       required this.assetsForCompression,
       required this.assetsForCompressionTree,
       required this.spaceOfMediaAssetsBeforeCompress,
+      required this.potentiallySavedSpace,
       required this.spaceOfMediaAssetsAfterCompress,
       required this.hasAnalyzed,
       required this.hasCompressed});
@@ -14,6 +15,7 @@ class CompressResult {
   final List<String> assetsForCompression;
   final Map<String, dynamic> assetsForCompressionTree;
   final double spaceOfMediaAssetsBeforeCompress;
+  final double potentiallySavedSpace;
   final double? spaceOfMediaAssetsAfterCompress;
   final bool hasAnalyzed;
   final bool hasCompressed;
@@ -23,6 +25,7 @@ class CompressResult {
       List<String>? assetsForCompression,
       Map<String, dynamic>? assetsForCompressionTree,
       double? spaceOfMediaAssetsBeforeCompress,
+      double? potentiallySavedSpace,
       double? Function()? spaceOfMediaAssetsAfterCompress,
       bool? hasAnalyzed,
       bool? hasCompressed}) {
@@ -33,6 +36,8 @@ class CompressResult {
             assetsForCompressionTree ?? this.assetsForCompressionTree,
         spaceOfMediaAssetsBeforeCompress: spaceOfMediaAssetsBeforeCompress ??
             this.spaceOfMediaAssetsBeforeCompress,
+        potentiallySavedSpace:
+            potentiallySavedSpace ?? this.potentiallySavedSpace,
         spaceOfMediaAssetsAfterCompress: spaceOfMediaAssetsAfterCompress == null
             ? this.spaceOfMediaAssetsAfterCompress
             : spaceOfMediaAssetsAfterCompress(),
@@ -51,6 +56,7 @@ class CompressResult {
                 assetsForCompressionTree, other.assetsForCompressionTree) &&
             spaceOfMediaAssetsBeforeCompress ==
                 other.spaceOfMediaAssetsBeforeCompress &&
+            potentiallySavedSpace == other.potentiallySavedSpace &&
             spaceOfMediaAssetsAfterCompress ==
                 other.spaceOfMediaAssetsAfterCompress &&
             hasAnalyzed == other.hasAnalyzed &&
@@ -63,6 +69,7 @@ class CompressResult {
       const ListEquality<String>().hash(assetsForCompression),
       const DeepCollectionEquality().hash(assetsForCompressionTree),
       spaceOfMediaAssetsBeforeCompress,
+      potentiallySavedSpace,
       spaceOfMediaAssetsAfterCompress,
       hasAnalyzed,
       hasCompressed);

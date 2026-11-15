@@ -4,29 +4,34 @@ import 'package:asset_doctor/data/file_system_client.dart';
 import 'package:asset_doctor/ui/console.dart';
 import 'package:asset_doctor/ui/extension.dart';
 import 'package:asset_doctor/ui/tree.dart';
+import 'package:path/path.dart' as p;
 
 class AnalysisPrinter {
   AnalysisPrinter(
       {required this.usedAssets,
       required this.pubspecAssets,
       required this.fs,
+      String? projectRoot,
       Console? console,
       TreePrinter? tree})
-      : console = console ?? const Console(),
+      : projectRoot = projectRoot ?? fs.currentDir,
+        console = console ?? Console(),
         tree = tree ?? TreePrinter();
 
   final Set<String> usedAssets;
   final List<String> pubspecAssets;
   final FileSystemClient fs;
 
+  late final String projectRoot;
   late final Console console;
   late final TreePrinter tree;
 
   void printCleanAnalysis(CleanResult result) {
     console.printHeader('Asset Usage Analysis');
 
-    console.printInfo(
-        'Potentially Used assets (Found in assets/ and path/name found as a string somewhere in the code):');
+    console.printSubHeader(
+      'Likely Used assets (Their path/name was found as a string literal somewhere in the code):',
+    );
     if (result.usedAssets.isNotEmpty) {
       for (var asset in result.usedAssets) {
         console.printDefault('• $asset');
@@ -35,15 +40,16 @@ class AnalysisPrinter {
       console.printDefault('None found.');
     }
 
-    console.printInfo(
-        '\nExcluded assets (Found in assets/ and appear unused, but are non-empty JSON files):');
+    console.printSubHeader(
+      'Excluded assets (They seem unused, but they are JSON files with content):',
+    );
     if (result.excludedTree.isNotEmpty) {
       tree.print(paths: result.excludedTree, prefix: '');
     } else {
       console.printDefault('None found.');
     }
 
-    console.printWarning('\n❌ Unused assets MARKED FOR DELETION:');
+    console.printWarning('\n🗑️  Unused assets MARKED FOR DELETION:');
     int totalUnusedForDeletion = countFilesInTree(result.unusedTree);
     if (totalUnusedForDeletion > 0) {
       console.printWarning('($totalUnusedForDeletion files)');
@@ -59,13 +65,12 @@ class AnalysisPrinter {
     final totalUsedAssets = result.usedAssets.length;
     int totalLocalizationExcluded = countFilesInTree(result.excludedTree);
     final totalUnused = totalUnusedForDeletion + totalLocalizationExcluded;
-    console.printInfo('\nSummary:');
-    console.printDivider();
+    console.printSubHeader('Summary:');
 
     console.printInfo('• Total assets (excluding hidden): ',
         end: totalAssetsInDir.toString());
 
-    console.printInfo('• Potentially Used assets: ',
+    console.printInfo('• Likely Used assets: ',
         end: totalUsedAssets.toString());
 
     console.printInfo(
@@ -88,14 +93,17 @@ class AnalysisPrinter {
           end:
               '${((totalUnusedForDeletion / totalAssetsInDir) * 100).toStringAsFixed(1)}%');
     }
-    console.printDivider();
+
+    console.printSuccess(
+        '\n• Potential space saved: ${result.potentiallySavedSpace.toStorageString()}');
   }
 
   void printCompressAnalysis(CompressResult result) {
     console.printHeader('Asset Compression Analysis');
 
-    console.printInfo(
-        'Potentially Used assets (Found in assets/ and path/name found as a string somewhere in the code):');
+    console.printSubHeader(
+      'Likely Used assets (Found in assets/ and path/name found as a string somewhere in the code):',
+    );
     if (result.usedAssets.isNotEmpty) {
       for (var asset in result.usedAssets) {
         console.printDefault('• $asset');
@@ -105,7 +113,7 @@ class AnalysisPrinter {
     }
 
     console.printWarning(
-        '\n🛠️ Assets MARKED FOR COMPRESSION (Potentially Used assets only):');
+        '\n🔨 Assets MARKED FOR COMPRESSION (Likely Used assets only):');
     if (result.assetsForCompression.isNotEmpty) {
       console.printWarning('(${result.assetsForCompression.length} files)');
       tree.print(paths: result.assetsForCompressionTree, prefix: '');
@@ -119,8 +127,7 @@ class AnalysisPrinter {
     final totalNotSelected =
         result.usedAssets.difference(selectedAssets).length;
 
-    console.printInfo('\nSummary:');
-    console.printDivider();
+    console.printSubHeader('Summary:');
     console.printInfo('• Total assets (excluding hidden): ',
         end: totalAssets.toString());
 
@@ -135,50 +142,136 @@ class AnalysisPrinter {
           end:
               '${((totalForCompression / totalAssets) * 100).toStringAsFixed(1)}%');
     }
-    console.printDivider();
+
+    console.printSuccess(
+        '\n• Estimated space to be saved: ${result.potentiallySavedSpace.toStorageString()}');
+  }
+
+  /// Summarize what cleaning and compression would free up without
+  /// changing any files. Meant to be more concise than the full
+  /// [printCleanAnalysis] and [printCompressAnalysis] breakdowns.
+  void printDryRunAnalysis(
+      CleanResult cleanResult, CompressResult compressResult) {
+    console.printHeader('Dry Run Analysis');
+    console.printInfo(
+        'No files were changed. Here is what Asset Doctor could free up:');
+
+    final totalForDeletion = cleanResult.unusedAssetsForDeletion.length;
+    final totalExcluded = countFilesInTree(cleanResult.excludedTree);
+    final totalForCompression = compressResult.assetsForCompression.length;
+
+    if (totalForDeletion == 0 && totalForCompression == 0) {
+      if (totalExcluded > 0) {
+        console.printSuccess('\n✨ Nothing to delete or compress.');
+        console.printInfo(
+            '• Unused but excluded from deletion (e.g., non-empty JSON): ',
+            end: totalExcluded.toString());
+      } else {
+        console.printSuccess(
+            '\n✨ Nothing to delete or compress. Your project is already lean.');
+      }
+      return;
+    }
+
+    console.printSubHeader('Cleaning');
+    if (totalForDeletion == 0) {
+      console.printDefault('  Nothing to delete.');
+    } else {
+      console.printInfo('• Assets marked for deletion: ',
+          end: totalForDeletion.toString());
+      console.printInfo('• Potential savings: ',
+          end: cleanResult.potentiallySavedSpace.toStorageString());
+    }
+    if (totalExcluded > 0) {
+      console.printInfo('• Excluded (e.g., non-empty JSON): ',
+          end: totalExcluded.toString());
+    }
+
+    console.printSubHeader('Compression');
+    if (totalForCompression == 0) {
+      console.printDefault('  Nothing to compress.');
+    } else {
+      console.printInfo('• Assets marked for compression: ',
+          end: totalForCompression.toString());
+      console.printInfo('• Total media assets size: ',
+          end: compressResult.spaceOfMediaAssetsBeforeCompress
+              .toStorageString());
+      console.printInfo('• Estimated savings: ',
+          end: compressResult.potentiallySavedSpace.toStorageString());
+    }
+
+    final totalPotentialSavings = cleanResult.potentiallySavedSpace +
+        compressResult.potentiallySavedSpace;
+    console.printSubHeader('Total Potential Savings:');
+    console.printSuccess(
+        '• Estimated total savings: ${totalPotentialSavings.toStorageString()}');
+    console.printHint(
+        '\nRun again without --dry-run to view detailed file trees and apply these changes. Your permission is required during critical steps');
   }
 
   void printPubspecAnalysis() {
-    console.printInfo('Checking pubspec.yaml for any skipped assets...');
+    console.printInfo('\nChecking pubspec.yaml for any skipped assets...');
 
     final declaredAssetsInPubspec =
         pubspecAssets.where((e) => fs.isFile(e) || fs.isDirectory(e));
 
     if (declaredAssetsInPubspec.isNotEmpty) {
-      final unusedDeclaredAssets = declaredAssetsInPubspec
-          .where((assetPath) => !usedAssets.contains(assetPath))
-          .toList()
-        ..sort();
-      console.printInfo('\n--- Pubspec.yaml Info ---');
+      final unusedDeclaredAssets =
+          getUsedInAButNotB(declaredAssetsInPubspec, usedAssets)..sort();
+      console.printHeader('pubspec.yaml Analysis');
       console.printInfo(
           'Found ${declaredAssetsInPubspec.length} assets declared in pubspec.yaml');
       if (unusedDeclaredAssets.isNotEmpty) {
-        console.printInfo(
-            '${unusedDeclaredAssets.length} declared assets were found in assets/ but not referenced in code');
+        console.printSubHeader(
+          '${unusedDeclaredAssets.length} declared assets were found in the assets section but not referenced in code:',
+        );
         for (var asset in unusedDeclaredAssets) {
-          console.printInfo('- $asset');
+          console.printInfo('• $asset');
         }
       } else {
         console.printInfo(
-            'All declared assets in pubspec.yaml appear to be referenced.');
+            'All declared assets in pubspec.yaml seem to be referenced.');
       }
-      final undeclaredUsedAssets = usedAssets
-          .where((assetPath) => !declaredAssetsInPubspec.contains(assetPath))
-          .toList()
-        ..sort();
+      final undeclaredUsedAssets =
+          getUsedInAButNotB(usedAssets, declaredAssetsInPubspec)..sort();
       if (undeclaredUsedAssets.isNotEmpty) {
-        console.printInfo(
+        console.printSubHeader(
             '${undeclaredUsedAssets.length} files in assets/ were used but *not* declared in pubspec.yaml:');
         for (var asset in undeclaredUsedAssets) {
-          console.printInfo('- $asset');
+          console.printInfo('• $asset');
         }
-        console.printInfo(
-            '💡 Tip: Consider declaring used assets in pubspec.yaml under the `assets:` section.');
+        console.printHint(
+            '\nTip: Consider declaring used assets in pubspec.yaml under the `assets:` section.');
       }
-      console.printInfo('-------------------------');
+      console.printDivider();
     } else {
       console.printInfo('None found');
     }
+  }
+
+  /// Get folders referenced in a but not in b
+  /// Handles sub folders, partial path
+  List<String> getUsedInAButNotB(Iterable<String> a, Iterable<String> b) {
+    return a.where((assetPath) {
+      final relativePath =
+          p.relative(assetPath, from: projectRoot).replaceAll('\\', '/');
+      final dirs = p.split(relativePath);
+
+      // generate all possible subdirs
+      final subdirs = <String>{};
+      for (var i = 0; i < dirs.length; i++) {
+        for (var j = i; j < dirs.length; j++) {
+          if (j == i) {
+            subdirs.add(dirs[j]);
+          } else {
+            subdirs.add('/${dirs.sublist(i, j).join('/')}');
+          }
+        }
+      }
+      // check if any of the subdirs are contained in pubspec
+      return subdirs
+          .every((subdir) => !b.any((bPath) => bPath.contains(subdir)));
+    }).toList();
   }
 
   int countFilesInTree(Map<String, dynamic> node) {

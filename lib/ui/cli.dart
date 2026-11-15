@@ -1,7 +1,7 @@
 import 'package:args/args.dart';
 import 'package:asset_doctor/ui/console.dart';
 
-enum CliMode { fullRun, cleanOnly, compressOnly, none }
+enum CliMode { fullRun, cleanOnly, compressOnly, dryRun, none }
 
 const PADDING = 32;
 
@@ -12,21 +12,20 @@ class Cli {
 
   CliMode start(List<String> arguments) {
     final parser = ArgParser()
-      ..addFlag(
-        'help',
-        abbr: 'h',
-        defaultsTo: false,
-      )
+      ..addFlag('help', abbr: 'h', defaultsTo: false)
       ..addFlag('full-run', abbr: 'f', defaultsTo: false)
       ..addFlag('clean-only', abbr: 'c', defaultsTo: false)
-      ..addFlag('compress-only', abbr: 'x', defaultsTo: false);
+      ..addFlag('compress-only', abbr: 'x', defaultsTo: false)
+      ..addFlag('dry-run', abbr: 'd', defaultsTo: false);
 
     ArgResults argResults = parser.parse(arguments);
     bool requestingHelp = argResults['help'] as bool;
     bool cleanOnly = argResults['clean-only'] as bool;
     bool compressOnly = argResults['compress-only'] as bool;
     bool fullRun = argResults['full-run'] as bool;
-    final noArgs = !cleanOnly && !compressOnly && !fullRun && !requestingHelp;
+    bool dryRun = argResults['dry-run'] as bool;
+    final noArgs =
+        !cleanOnly && !compressOnly && !fullRun && !dryRun && !requestingHelp;
 
     console.printHeader('Asset Doctor');
 
@@ -46,12 +45,19 @@ class Cli {
             compressOnly = true;
             break;
           case '4':
+            dryRun = true;
+            break;
+          case '5':
             requestingHelp = true;
             break;
           default:
             console.printError('Invalid option. Please choose 1 - 4');
         }
-      } while (!fullRun && !cleanOnly && !compressOnly && !requestingHelp);
+      } while (!fullRun &&
+          !cleanOnly &&
+          !compressOnly &&
+          !dryRun &&
+          !requestingHelp);
     }
 
     if (requestingHelp) {
@@ -71,6 +77,10 @@ class Cli {
       return CliMode.compressOnly;
     }
 
+    if (dryRun) {
+      return CliMode.dryRun;
+    }
+
     return CliMode.none;
   }
 
@@ -86,6 +96,8 @@ class Cli {
     console.printInfo('${'-c, --clean-only'.padRight(PADDING)}Clean only');
     console
         .printInfo('${'-x, --compress-only'.padRight(PADDING)}Compress only');
+    console.printInfo(
+        '${'-d, --dry-run'.padRight(PADDING)}Dry run (See potential size savings without touching anything)');
     console.printInfo('${'-h, --help'.padRight(PADDING)}Help');
   }
 
@@ -94,7 +106,8 @@ class Cli {
     console.printInfo('1. Full run (clean & compress)');
     console.printInfo('2. Clean only');
     console.printInfo('3. Compress only');
-    console.printInfo('4. Help');
-    console.write('Choose one (1-4): ');
+    console.printInfo('4. Dry run');
+    console.printInfo('5. Help');
+    console.printInputPrompt('Choose one (1-4): ');
   }
 }

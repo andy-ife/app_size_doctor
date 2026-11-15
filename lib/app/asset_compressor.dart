@@ -66,6 +66,7 @@ class AssetCompressor {
         assetsForCompression: assetsForCompression,
         assetsForCompressionTree: compressTree,
         spaceOfMediaAssetsBeforeCompress: spaceofMediaAssetsBeforeCompress,
+        potentiallySavedSpace: spaceofMediaAssetsBeforeCompress * 0.6,
         spaceOfMediaAssetsAfterCompress: null,
         hasAnalyzed: true,
         hasCompressed: false);
@@ -78,10 +79,49 @@ class AssetCompressor {
       return null;
     }
 
-    final curResult = _result!;
+    var curResult = _result!;
 
     if (curResult.assetsForCompression.isNotEmpty) {
-      console.printInfo('Marking media assets for compression');
+      String? shouldKeepSome;
+      int? totalAssets;
+      console.printInfo(
+          '\n${curResult.assetsForCompression.length} assets are marked for compression. ');
+      console.printInputPrompt(
+          'Select some assets to ignore (remove from compression list)? (Y/N): ');
+      do {
+        shouldKeepSome = console.read();
+        if (shouldKeepSome.isYes) {
+          final toCompress = curResult.assetsForCompression;
+
+          final indexes = console.printMultiSelect(
+              message: '(Press <space> to select, <enter> to confirm)',
+              options: toCompress);
+
+          final toKeep = toCompress.indexed
+              .where((e) => indexes.contains(e.$1))
+              .map((e) => e.$2);
+
+          totalAssets = toCompress.length;
+          curResult = curResult.copyWith(
+              assetsForCompression:
+                  toCompress.where((e) => !toKeep.contains(e)).toList());
+        } else if (shouldKeepSome.isNo) {
+          // do nothing. Continue code
+        } else {
+          console.printError('Invalid option. Please enter "y" or "n"');
+        }
+      } while (!shouldKeepSome.isYesOrNo);
+
+      if (curResult.assetsForCompression.isNotEmpty) {
+        console.printWarning(
+            '\nMarking ${shouldKeepSome.isYes ? '${curResult.assetsForCompression.length}/$totalAssets' : 'all'} media assets for compression...');
+      } else {
+        console.printSuccess('\n✨ Nothing to compress. Keeping all assets');
+        return curResult;
+      }
+    } else {
+      console.printSuccess("\n✨ Nothing to compress. No media assets found");
+      return curResult;
     }
 
     String? finalConfirm;
@@ -89,7 +129,8 @@ class AssetCompressor {
     console.printInfo(
         '\nFINAL CONFIRMATION: You are about to compress ${curResult.assetsForCompression.length} asset(s).');
     do {
-      console.write('Proceed with compression? It may take a while (Y/N): ');
+      console.printInputPrompt(
+          'Proceed with compression? It may take a while (Y/N): ');
       finalConfirm = console.read();
       if (finalConfirm.isYes) {
         freedSpace += await console.printLoading<double>(

@@ -40,16 +40,18 @@ class AssetCleaner {
     List<String> unusedAssetsForDeletion = <String>[]; // Use List for indexing
     final localizationAssetsExcluded = <String>[];
     double spaceOfUnusedAssetsBeforeClean = 0;
+    double potentiallySavedSpace = 0;
 
     for (final assetPath in potentialUnusedPaths) {
       final path = p.join(projectRoot, assetPath);
       bool isJson = assetPath.toLowerCase().endsWith('.json');
       bool isNonEmpty = false;
+      double fileSize = 0;
       try {
         if (fs.fileExists(path)) {
-          final size = fs.lengthSync(path);
-          isNonEmpty = size > 0;
-          spaceOfUnusedAssetsBeforeClean += size;
+          fileSize = fs.lengthSync(path).toDouble();
+          isNonEmpty = fileSize > 0;
+          spaceOfUnusedAssetsBeforeClean += fileSize;
         }
       } catch (e) {
         console.printWarning('Could not check size of "$assetPath": $e');
@@ -60,6 +62,7 @@ class AssetCleaner {
         localizationAssetsExcluded.add(assetPath);
       } else {
         unusedAssetsForDeletion.add(assetPath);
+        potentiallySavedSpace += fileSize;
       }
     }
 
@@ -73,6 +76,7 @@ class AssetCleaner {
         unusedTree: unusedTree,
         excludedTree: excludedTree,
         spaceOfUnusedAssetsBeforeClean: spaceOfUnusedAssetsBeforeClean,
+        potentiallySavedSpace: potentiallySavedSpace,
         spaceOfUnusedAssetsAfterClean: null,
         hasAnalyzed: true,
         hasCleaned: false);
@@ -86,10 +90,46 @@ class AssetCleaner {
       return null;
     }
 
-    final curResult = _result!;
+    var curResult = _result!;
 
     if (curResult.unusedAssetsForDeletion.isNotEmpty) {
-      console.printInfo('Marking all unused assets for deletion...');
+      String? shouldKeepSome;
+      int? totalUnused;
+      console.printInfo(
+          '\n${curResult.unusedAssetsForDeletion.length} assets are marked for deletion. ');
+      console.printInputPrompt(
+          'Select some assets to keep (remove from deletion list)? (Y/N): ');
+      do {
+        shouldKeepSome = console.read();
+        if (shouldKeepSome.isYes) {
+          final toDelete = curResult.unusedAssetsForDeletion;
+          
+          final indexes = console.printMultiSelect(
+              message: '(Press <space> to select, <enter> to confirm)',
+              options: toDelete);
+
+          final toKeep = toDelete.indexed
+              .where((e) => indexes.contains(e.$1))
+              .map((e) => e.$2);
+
+          totalUnused = toDelete.length;
+          curResult = curResult.copyWith(
+              unusedAssetsForDeletion:
+                  toDelete.where((e) => !toKeep.contains(e)).toList());
+        } else if (shouldKeepSome.isNo) {
+          // do nothing. Continue code
+        } else {
+          console.printError('Invalid option. Please enter "y" or "n"');
+        }
+      } while (!shouldKeepSome.isYesOrNo);
+
+      if (curResult.unusedAssetsForDeletion.isNotEmpty) {
+        console.printWarning(
+            '\nMarking ${shouldKeepSome.isYes ? '${curResult.unusedAssetsForDeletion.length}/$totalUnused' : 'all'} unused assets for deletion...');
+      } else {
+        console.printSuccess("\n✨ Nothing to clean. Keeping all assets");
+        return curResult;
+      }
     } else {
       console.printSuccess("\n✨ Nothing to clean. No unused assets found");
       return curResult;
@@ -100,7 +140,7 @@ class AssetCleaner {
     console.printInfo(
         '\nFINAL CONFIRMATION: You are about to delete ${curResult.unusedAssetsForDeletion.length} asset(s).');
     do {
-      console.write('Proceed with deletion? (Y/N): ');
+      console.printInputPrompt('Proceed with deletion? (Y/N): ');
       finalConfirm = console.read();
       if (finalConfirm.isYes) {
         freedSpace += await console.printLoading<double>(

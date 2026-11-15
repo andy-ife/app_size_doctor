@@ -108,6 +108,6 @@ class Cli {
     console.printInfo('3. Compress only');
     console.printInfo('4. Dry run');
     console.printInfo('5. Help');
-    console.printInputPrompt('Choose one (1-4): ');
+    console.printInputPrompt('Choose one (1-5): ');
   }
 }

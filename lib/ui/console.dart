@@ -5,12 +5,14 @@ import 'dart:isolate';
 import 'package:interact_cli/interact_cli.dart';
 
 const String reset = '\x1B[0m';
+
 const String red = '\x1B[31m';
 const String green = '\x1B[32m';
 const String yellow = '\x1B[33m';
-const String black = '\x1B[0;90m';
 const String cyan = '\x1B[96m';
-const String cyanBold = '\x1B[1;96m';
+
+const String light = '\x1B[0;90m';
+const String bold = '\x1B[1;37m';
 
 /// Simple wrapper around [Stdin] & [Stdout]
 class Console {
@@ -32,11 +34,11 @@ class Console {
   }
 
   void showCursor() {
-    write('\x1B[?25h');
+    write('\n\x1B[?25h');
   }
 
-  void hideCursor() {
-    write('\x1B[?25l\n');
+  void hideCursor({bool newline = true}) {
+    write('\x1B[?25l${newline ? '\n' : ''}');
   }
 
   void resetConsole() {
@@ -60,7 +62,7 @@ class Console {
   }
 
   void printSubHeader(String title) {
-    _print('\n$cyanBold$title$reset');
+    printInfo('\n$bold$title$reset');
   }
 
   void printDivider() {
@@ -72,16 +74,17 @@ class Console {
     _print('\n$red$message$reset\n');
   }
 
+  /// For small phrases/snippets
   void printHint(String message) {
     _print('$cyan$message$reset');
   }
 
   void printInputPrompt(String message) {
-    write('$cyanBold$message$reset');
+    write('$bold$message$reset');
   }
 
-  void printInfo(String message, {String? end}) {
-    _print('$message${end != null ? '$cyan$end$reset' : ''}');
+  void printInfo(String message) {
+    _print(message);
   }
 
   void printWarning(String message) {
@@ -115,7 +118,7 @@ class Console {
     });
 
     int i = 2;
-    hideCursor();
+    hideCursor(newline: false);
     do {
       String dots = '.' * ((i % 3) + 1);
       write('\r$message${dots.padRight(4)}');
@@ -141,15 +144,15 @@ class Console {
         theme: Theme.basicTheme.copyWith(
             inputSuffix: '',
             successSuffix: '',
-            messageStyle: (x) => '$cyan$x$reset',
+            messageStyle: (x) => x,
             hintStyle: (x) => '$cyan$x$reset',
             errorStyle: (x) => '$red$x$reset',
-            activeItemStyle: (x) => '$green$x$reset',
-            inactiveItemStyle: (x) => x,
-            activeItemPrefix: '$green>$reset',
-            checkedItemPrefix: '$green✔$reset',
+            activeItemStyle: (x) => x,
+            inactiveItemStyle: (x) => '$light$x$reset',
+            activeItemPrefix: '>',
+            checkedItemPrefix: '$cyan✔$reset',
             uncheckedItemPrefix: ' ',
-            pickedItemPrefix: '$green✔$reset',
+            pickedItemPrefix: '$cyan✔$reset',
             unpickedItemPrefix: ' '),
       ).interact();
     } catch (e) {

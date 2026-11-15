@@ -36,6 +36,10 @@ class AssetUsageScanner {
           final pubspecAssets = getPubspecAssets();
           final allNormalizedLiterals = getAllNormalizedLiterals();
           final allAssets = getAllAssets();
+          if (allAssets.isEmpty) {
+            console.printWarning('No assets found in project');
+            throw 'No assets found in project';
+          }
           final usedAssets = getUsedAssets(allAssets, allNormalizedLiterals);
 
           return (
@@ -110,8 +114,8 @@ class AssetUsageScanner {
   Set<String> _findAllFilesInDirectory(String dir, {bool isFirst = false}) {
     final files = <String>{};
     if (!fs.directoryExists(dir)) {
-      console.printWarning(
-          '${isFirst ? '\n' : ''}Assets directory not found at $dir');
+      // console.printWarning(
+      //     '${isFirst ? '\n' : ''}Assets directory not found at $dir');
       return files;
     }
     for (var entity in fs.listFilesSync(dir)) {
@@ -123,14 +127,16 @@ class AssetUsageScanner {
           }
         }
       } catch (e) {
-        console.printError('Error listing files in $dir: $e');
+        console.printError('Error listing files in /$dir: $e');
       }
     }
     if (files.isEmpty) {
       console.printWarning(
-          '\nNo files found in the assets directory $dir (Excluding hidden files)');
+          '\nNo files found in the assets directory /$dir (Excluding hidden files)');
     } else {
-      console.printHint('\nFound ${files.length} files in $dir.');
+      console.printInfo(
+        '\nFound ${files.length} files in /$dir',
+      );
     }
     return files;
   }

@@ -43,8 +43,7 @@ class App {
     final cliMode = Cli().start(args);
 
     if (cliMode == CliMode.none) {
-      print('Exiting...');
-      return;
+      exit(0);
     }
 
     final initialData = await scanner.init();

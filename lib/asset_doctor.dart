@@ -4,6 +4,7 @@ import 'package:asset_doctor/app/asset_compressor.dart';
 import 'package:asset_doctor/app/models/clean_result.dart';
 import 'package:asset_doctor/app/models/compress_result.dart';
 import 'package:asset_doctor/ui/cli.dart';
+import 'package:asset_doctor/ui/console.dart';
 
 class AssetDoctor {
   const AssetDoctor(
@@ -23,6 +24,9 @@ class AssetDoctor {
         {
           final cleanResult = await clean();
           if (cleanResult == null) return;
+
+          Console().printInfo('Proceeding to compression...');
+          await Future.delayed(Duration(seconds: 1));
 
           final compressResult = await compress();
           if (compressResult == null) return;
@@ -59,7 +63,7 @@ class AssetDoctor {
       case CliMode.dryRun:
         {
           await dryRun();
-          analysisPrinter.printPubspecAnalysis();
+          // analysisPrinter.printPubspecAnalysis();
           break;
         }
       case CliMode.none:

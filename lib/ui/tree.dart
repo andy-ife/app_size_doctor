@@ -37,8 +37,8 @@ class TreePrinter {
       final key = keys[i];
       final isLastEntry = (i == keys.length - 1);
       final entityPrefix =
-          isLastEntry ? '$black└── $reset' : '$black├── $reset';
-      final childPrefix = prefix0 + (isLastEntry ? '    ' : '$black│   $reset');
+          isLastEntry ? '$light└── $reset' : '$light├── $reset';
+      final childPrefix = prefix0 + (isLastEntry ? '    ' : '$light│   $reset');
       console.printDefault('$prefix0$entityPrefix$key');
       if (node[key] is Map) {
         print(

@@ -30,7 +30,7 @@ class AnalysisPrinter {
     console.printHeader('Asset Usage Analysis');
 
     console.printSubHeader(
-      'Likely Used assets (Their path/name was found as a string literal somewhere in the code):',
+      'Potentially Used assets (Their path/name was found as a string literal somewhere in the code):',
     );
     if (result.usedAssets.isNotEmpty) {
       for (var asset in result.usedAssets) {
@@ -41,7 +41,7 @@ class AnalysisPrinter {
     }
 
     console.printSubHeader(
-      'Excluded assets (They seem unused, but they are JSON files with content):',
+      'Excluded assets (Unused JSON files):',
     );
     if (result.excludedTree.isNotEmpty) {
       tree.print(paths: result.excludedTree, prefix: '');
@@ -65,36 +65,39 @@ class AnalysisPrinter {
     final totalUsedAssets = result.usedAssets.length;
     int totalLocalizationExcluded = countFilesInTree(result.excludedTree);
     final totalUnused = totalUnusedForDeletion + totalLocalizationExcluded;
-    console.printSubHeader('Summary:');
-
-    console.printInfo('• Total assets (excluding hidden): ',
-        end: totalAssetsInDir.toString());
-
-    console.printInfo('• Likely Used assets: ',
-        end: totalUsedAssets.toString());
+    console.printSubHeader('Pre-cleaning Summary:');
 
     console.printInfo(
-      '• Unused assets (Total): ',
-      end: totalUnused.toString(),
+      '• Total assets (excluding hidden): ${totalAssetsInDir.toString()}',
     );
 
-    console.printInfo('  - Excluded (e.g., non-empty JSON): ',
-        end: totalLocalizationExcluded.toString());
+    console.printInfo(
+      '• Potentially Used assets: ${totalUsedAssets.toString()}',
+    );
 
-    console.printInfo('  - Marked for deletion: ',
-        end: totalUnusedForDeletion.toString());
+    console.printInfo(
+      '• Unused assets (Total): ${totalUnused.toString()}',
+    );
+
+    console.printInfo(
+      '  - Excluded (e.g., non-empty JSON): ${totalLocalizationExcluded.toString()}',
+    );
+
+    console.printInfo(
+      '  - Marked for deletion: ${totalUnusedForDeletion.toString()}',
+    );
 
     if (totalAssetsInDir > 0) {
-      console.printInfo('• Percentage used: ',
-          end:
-              '${((totalUsedAssets / totalAssetsInDir) * 100).toStringAsFixed(1)}%');
+      console.printInfo(
+        '• Percentage used: ${((totalUsedAssets / totalAssetsInDir) * 100).toStringAsFixed(1)}%',
+      );
 
-      console.printInfo('• Percentage unused (for deletion): ',
-          end:
-              '${((totalUnusedForDeletion / totalAssetsInDir) * 100).toStringAsFixed(1)}%');
+      console.printInfo(
+        '• Percentage unused (for deletion): ${((totalUnusedForDeletion / totalAssetsInDir) * 100).toStringAsFixed(1)}%',
+      );
     }
 
-    console.printSuccess(
+    console.printWarning(
         '\n• Potential space saved: ${result.potentiallySavedSpace.toStorageString()}');
   }
 
@@ -102,7 +105,7 @@ class AnalysisPrinter {
     console.printHeader('Asset Compression Analysis');
 
     console.printSubHeader(
-      'Likely Used assets (Found in assets/ and path/name found as a string somewhere in the code):',
+      'Potentially Used assets (Found in assets/ and path/name found as a string somewhere in the code):',
     );
     if (result.usedAssets.isNotEmpty) {
       for (var asset in result.usedAssets) {
@@ -127,20 +130,23 @@ class AnalysisPrinter {
     final totalNotSelected =
         result.usedAssets.difference(selectedAssets).length;
 
-    console.printSubHeader('Summary:');
-    console.printInfo('• Total assets (excluding hidden): ',
-        end: totalAssets.toString());
+    console.printSubHeader('Pre-compression Summary:');
+    console.printInfo(
+      '• Total assets (excluding hidden): ${totalAssets.toString()}',
+    );
 
-    console.printInfo('• Assets marked for compression: ',
-        end: totalForCompression.toString());
+    console.printInfo(
+      '• Assets marked for compression: ${totalForCompression.toString()}',
+    );
 
-    console.printInfo('• Assets not selected for compression: ',
-        end: totalNotSelected.toString());
+    console.printInfo(
+      '• Assets not selected for compression: ${totalNotSelected.toString()}',
+    );
 
     if (totalAssets > 0) {
-      console.printInfo('• Percentage selected for compression: ',
-          end:
-              '${((totalForCompression / totalAssets) * 100).toStringAsFixed(1)}%');
+      console.printInfo(
+        '• Percentage selected for compression: ${((totalForCompression / totalAssets) * 100).toStringAsFixed(1)}%',
+      );
     }
 
     console.printSuccess(
@@ -164,8 +170,8 @@ class AnalysisPrinter {
       if (totalExcluded > 0) {
         console.printSuccess('\n✨ Nothing to delete or compress.');
         console.printInfo(
-            '• Unused but excluded from deletion (e.g., non-empty JSON): ',
-            end: totalExcluded.toString());
+          '• Unused but excluded from deletion (e.g., non-empty JSON): ${totalExcluded.toString()} ',
+        );
       } else {
         console.printSuccess(
             '\n✨ Nothing to delete or compress. Your project is already lean.');
@@ -173,40 +179,45 @@ class AnalysisPrinter {
       return;
     }
 
-    console.printSubHeader('Cleaning');
+    console.printSubHeader('🗑️  Cleaning');
     if (totalForDeletion == 0) {
       console.printDefault('  Nothing to delete.');
     } else {
-      console.printInfo('• Assets marked for deletion: ',
-          end: totalForDeletion.toString());
-      console.printInfo('• Potential savings: ',
-          end: cleanResult.potentiallySavedSpace.toStorageString());
+      console.printInfo(
+        '• Assets marked for deletion: ${totalForDeletion.toString()}',
+      );
+      console.printInfo(
+        '• Potential savings: ${cleanResult.potentiallySavedSpace.toStorageString()}',
+      );
     }
     if (totalExcluded > 0) {
-      console.printInfo('• Excluded (e.g., non-empty JSON): ',
-          end: totalExcluded.toString());
+      console.printInfo(
+        '• Excluded (e.g., non-empty JSON): ${totalExcluded.toString()}',
+      );
     }
 
-    console.printSubHeader('Compression');
+    console.printSubHeader('🔨 Compression');
     if (totalForCompression == 0) {
       console.printDefault('  Nothing to compress.');
     } else {
-      console.printInfo('• Assets marked for compression: ',
-          end: totalForCompression.toString());
-      console.printInfo('• Total media assets size: ',
-          end: compressResult.spaceOfMediaAssetsBeforeCompress
-              .toStorageString());
-      console.printInfo('• Estimated savings: ',
-          end: compressResult.potentiallySavedSpace.toStorageString());
+      console.printInfo(
+        '• Assets marked for compression: ${totalForCompression.toString()}',
+      );
+      console.printInfo(
+        '• Total media assets size: ${compressResult.spaceOfMediaAssetsBeforeCompress.toStorageString()}',
+      );
+      console.printInfo(
+        '• Estimated savings: ${compressResult.potentiallySavedSpace.toStorageString()}',
+      );
     }
 
     final totalPotentialSavings = cleanResult.potentiallySavedSpace +
         compressResult.potentiallySavedSpace;
     console.printSubHeader('Total Potential Savings:');
-    console.printSuccess(
+    console.printInfo(
         '• Estimated total savings: ${totalPotentialSavings.toStorageString()}');
-    console.printHint(
-        '\nRun again without --dry-run to view detailed file trees and apply these changes. Your permission is required during critical steps');
+    console.printInfo(
+        '\nRun again without --dry-run to view detailed file trees and apply these changes.');
   }
 
   void printPubspecAnalysis() {
@@ -240,7 +251,7 @@ class AnalysisPrinter {
         for (var asset in undeclaredUsedAssets) {
           console.printInfo('• $asset');
         }
-        console.printHint(
+        console.printInfo(
             '\nTip: Consider declaring used assets in pubspec.yaml under the `assets:` section.');
       }
       console.printDivider();

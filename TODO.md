@@ -17,7 +17,7 @@
 15. ~~Allow user to choose 'unused' assets to keep (not delete), and 'used' assets to NOT compress~~
 16. Ensure the output file format after compression is same as input. Consider adding option for users to allow changing file format or not
 17. ~~Compression client should use fs, not dart:io directly.~~
-18. Compressor should check for unused assets and advice deletion. It does NOT compress unused assets
+18. ~~Compressor should check for unused assets and advice deletion. It does NOT compress unused assets~~
 19. Allow users to set compression level
 20. ~~Add interactive picker for user to select files to NOT clean or NOT compress~~
 21. Move away from interact_cli dependency. Implement our own custom list selector

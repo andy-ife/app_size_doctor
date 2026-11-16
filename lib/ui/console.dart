@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:isolate';
+import 'dart:math';
 
 import 'package:interact_cli/interact_cli.dart';
 
@@ -95,10 +96,6 @@ class Console {
     _print('$green$message$reset');
   }
 
-  void printDefault(String message) {
-    _print(message);
-  }
-
   /// Offloads [work] to a separate Isolate, while printing [message]
   /// and a loading animation on the main Isolate
   ///
@@ -159,5 +156,113 @@ class Console {
       resetConsole();
       rethrow;
     }
+  }
+
+  /// Prints items in a 2 - 6 column matrix
+  /// Useful for long lists
+  void printMatrix(Set<String> items) {
+    if (items.length < 6) {
+      for (var asset in items) {
+        printInfo('• $asset');
+      }
+    } else {
+      final matrix = _getBestMatrix(items, minSpacing: 8);
+      if (matrix.length == 1) {
+        // single list
+        for (var asset in items) {
+          printInfo('• $asset');
+        }
+      } else {
+        // matrix
+        for (var i in matrix) {
+          printInfo(i.join());
+        }
+      }
+    }
+  }
+
+  List<List<String>> _getBestMatrix(Set<String> items,
+      {int maxColumns = 6, int minSpacing = 8}) {
+    final terminalWidth = stdout.hasTerminal ? stdout.terminalColumns : 80;
+    var bestMatrix = <List<String>>[];
+
+    while (maxColumns > 0) {
+      if (maxColumns == 1) {
+        return [items.toList()];
+      }
+
+      final matrix = _buildMatrix(items, maxColumns);
+      final longestRow =
+          matrix.map((e) => e.length).reduce((a, b) => max(a, b));
+      final cols = List<List<String>>.generate(longestRow, (_) => []);
+
+      // get cols
+      for (int i = 0; i < matrix.length; i++) {
+        final row = matrix[i];
+        for (int j = 0; j < row.length; j++) {
+          final cur = row[j];
+          cols[j].insert(i, cur);
+        }
+      }
+
+      // get required width of all columns
+      int totalRequiredWidth = 0;
+      final colWidths = <int>[];
+      for (var col in cols) {
+        final widths = col.map((e) => e.length + minSpacing);
+        final maxWidth = widths.reduce((a, b) => max(a, b));
+        colWidths.add(maxWidth);
+        totalRequiredWidth += maxWidth;
+      }
+
+      // check if requiredWidth will fit in terminalWidth
+      if (totalRequiredWidth > terminalWidth) {
+        maxColumns--;
+        continue;
+      } else {
+        // add the widths to the cols
+        final formattedCols = cols.indexed.map((cur) {
+          final index = cur.$1;
+          final col = cur.$2;
+          return col.map((e) {
+            return e.padRight(colWidths[index]);
+          }).toList();
+        }).toList();
+
+        // convert cols list to rows list
+        bestMatrix = matrix.map((_) => <String>[]).toList();
+        for (int i = 0; i < formattedCols.length; i++) {
+          final col = formattedCols[i];
+          for (int j = 0; j < col.length; j++) {
+            final cur = col[j];
+            bestMatrix[j].insert(i, cur);
+          }
+        }
+        break;
+      }
+    }
+
+    return bestMatrix;
+  }
+
+  List<List<String>> _buildMatrix(Set<String> items, int colCount) {
+    final matrix = <List<String>>[];
+    final rowCount = (items.length / colCount).ceil();
+
+    // populate matrix
+    for (int row = 0; row < rowCount; row++) {
+      for (int col = 0; col < colCount; col++) {
+        final listIndex = (row * colCount) + col;
+        if (listIndex >= items.length) break;
+        final item = items.elementAt(listIndex);
+        final newRow = (matrix.elementAtOrNull(row) ?? [])..add(item);
+        if (matrix.elementAtOrNull(row) == null) {
+          matrix.add(newRow);
+        } else {
+          matrix[row] = newRow;
+        }
+      }
+    }
+    return matrix;
   }
 }

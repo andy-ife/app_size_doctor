@@ -33,21 +33,20 @@ class AnalysisPrinter {
         'Potentially Used assets (Their path/name was found as a string literal somewhere in the code):',
         nl: false);
     if (result.usedAssets.isNotEmpty) {
-      for (var asset in result.usedAssets) {
-        console.printDefault('• $asset');
-      }
+      console.printInfo('(${result.usedAssets.length} files)');
+      console.printMatrix(result.usedAssets);
     } else {
-      console.printDefault('None found.');
+      console.printInfo('None found.');
     }
 
-    // console.printSubHeader(
-    //   'Excluded assets (Unused JSON files):',
-    // );
-    // if (result.excludedTree.isNotEmpty) {
-    //   tree.print(paths: result.excludedTree, prefix: '');
-    // } else {
-    //   console.printDefault('None found.');
-    // }
+    console.printSubHeader(
+      'Excluded assets (e.g unused JSON files):',
+    );
+    if (result.excludedTree.isNotEmpty) {
+      tree.print(paths: result.excludedTree, prefix: '');
+    } else {
+      console.printInfo('None found.');
+    }
 
     console.printWarning('\n🗑️  Unused assets MARKED FOR DELETION:');
     int totalUnusedForDeletion = countFilesInTree(result.unusedTree);
@@ -58,14 +57,14 @@ class AnalysisPrinter {
         prefix: '',
       );
     } else {
-      console.printDefault('  None found');
+      console.printInfo('  None found');
     }
 
     final totalAssetsInDir = result.allAssets.length;
     final totalUsedAssets = result.usedAssets.length;
     int totalLocalizationExcluded = countFilesInTree(result.excludedTree);
     final totalUnused = totalUnusedForDeletion + totalLocalizationExcluded;
-    console.printSubHeader('Pre-cleaning Summary:');
+    console.printSubHeader('Pre-deletion Summary:');
 
     console.printInfo(
       '• Total assets (excluding hidden): ${totalAssetsInDir.toString()}',
@@ -80,7 +79,7 @@ class AnalysisPrinter {
     );
 
     console.printInfo(
-      '  - Excluded (e.g., non-empty JSON): ${totalLocalizationExcluded.toString()}',
+      '  - Excluded (e.g., unused JSON): ${totalLocalizationExcluded.toString()}',
     );
 
     console.printInfo(
@@ -108,20 +107,19 @@ class AnalysisPrinter {
         'Potentially Used assets (Found in assets/ and path/name found as a string somewhere in the code):',
         nl: false);
     if (result.usedAssets.isNotEmpty) {
-      for (var asset in result.usedAssets) {
-        console.printDefault('• $asset');
-      }
+      console.printInfo('(${result.usedAssets.length} files)');
+      console.printMatrix(result.usedAssets);
     } else {
-      console.printDefault('None found.');
+      console.printInfo('None found.');
     }
 
     console.printWarning(
-        '\n🔨 Assets MARKED FOR COMPRESSION (Likely Used assets only):');
+        '\n🔨 Assets MARKED FOR COMPRESSION (Potentiallyy Used assets only):');
     if (result.assetsForCompression.isNotEmpty) {
       console.printWarning('(${result.assetsForCompression.length} files)');
       tree.print(paths: result.assetsForCompressionTree, prefix: '');
     } else {
-      console.printDefault('  None found.');
+      console.printInfo('  None found.');
     }
 
     final selectedAssets = result.assetsForCompression.toSet();
@@ -181,7 +179,7 @@ class AnalysisPrinter {
 
     console.printSubHeader('🗑️  Cleaning');
     if (totalForDeletion == 0) {
-      console.printDefault('  Nothing to delete.');
+      console.printInfo('  Nothing to delete.');
     } else {
       console.printInfo(
         '• Assets marked for deletion: ${totalForDeletion.toString()}',
@@ -198,7 +196,7 @@ class AnalysisPrinter {
 
     console.printSubHeader('🔨 Compression');
     if (totalForCompression == 0) {
-      console.printDefault('  Nothing to compress.');
+      console.printInfo('  Nothing to compress.');
     } else {
       console.printInfo(
         '• Assets marked for compression: ${totalForCompression.toString()}',

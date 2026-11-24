@@ -20,4 +20,6 @@
 18. ~~Compressor should check for unused assets and advice deletion. It does NOT compress unused assets~~
 19. Allow users to set compression level
 20. ~~Add interactive picker for user to select files to NOT clean or NOT compress~~
-21. Move away from interact_cli dependency. Implement our own custom list selector
+21. Optimize Android and iOS regex searches. Apply correct regex to correct file types only
+22. Don't be too quick to delete files. Consider adding used, unused, and indefinite/unclear states. Lean towards keeping unclear/indefinite files
+23. Move away from interact_cli dependency. Implement our own custom list selector

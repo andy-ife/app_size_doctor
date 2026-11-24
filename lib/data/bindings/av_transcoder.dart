@@ -16,8 +16,10 @@ typedef AvTranscoderDart = int Function(
   Pointer<Int32> outOSStatus,
 );
 
-/// Native OS-level transcoding for macOS
 class AvTranscoder {
+  /// AVFoundation
+  ///
+  /// Native OS-level transcoding for macOS
   AvTranscoder({String? dllPath})
       : _lib = DynamicLibrary.open(
             dllPath ?? 'native_libs/macOS/av_transcoder.dll') {

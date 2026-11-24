@@ -1,12 +1,20 @@
 import 'dart:io';
 import 'dart:typed_data';
-
 import 'package:path/path.dart' as p;
 
 /// Simple wrapper around dart:io
 class FileSystemClient {
-  const FileSystemClient({required this.projectRoot});
+  FileSystemClient({String? projectRoot})
+      : projectRoot = projectRoot ?? Directory.current.absolute.path;
   final String projectRoot;
+
+  // ===========
+  // Platform
+  // ===========
+
+  bool get isWindows => Platform.isWindows;
+  bool get isMacOS => Platform.isMacOS;
+  bool get isLinux => Platform.isLinux;
 
   // ============
   // File
@@ -16,7 +24,6 @@ class FileSystemClient {
     return File(path).existsSync();
   }
 
-  // syntax sugar
   bool isFile(String path) {
     return fileExists(path);
   }

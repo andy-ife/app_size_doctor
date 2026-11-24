@@ -10,9 +10,6 @@ dependencies:
   args: ^2.7.0
   path: ^1.9.1
 
-  # Video
-  compressor: ^1.0.0
-
   # Image
   image_compression: ^1.0.5
 

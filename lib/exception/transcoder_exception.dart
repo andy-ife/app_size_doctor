@@ -1,4 +1,4 @@
-import 'dart:io';
+import 'package:asset_doctor/data/file_system_client.dart';
 
 sealed class TranscoderException implements Exception {
   final int? osCode;
@@ -101,12 +101,12 @@ class FfmpegNotFoundException extends TranscoderException {
       'Ffmpeg not found. Please download ffmpeg and add it to your PATH or specify `ffmpegPath` as an argument\nhttps://ffmpeg.org/download.html';
 }
 
-TranscoderException handleTranscoderException(
-    dynamic code, int? osCode, Platform platform) {
+TranscoderException getTranscoderException(
+    dynamic code, int? osCode, FileSystemClient fs) {
   if (code is Exception) {
     throw code;
   } else if (code is int) {
-    if (Platform.isWindows) {
+    if (fs.isWindows) {
       late final TranscoderException error;
       switch (code) {
         case 1:
@@ -141,7 +141,7 @@ TranscoderException handleTranscoderException(
           break;
       }
       return error;
-    } else if (Platform.isMacOS) {
+    } else if (fs.isMacOS) {
       late final TranscoderException error;
       switch (code) {
         case 1:
@@ -170,7 +170,7 @@ TranscoderException handleTranscoderException(
           break;
       }
       return error;
-    } else if (Platform.isLinux) {
+    } else if (fs.isLinux) {
       late final TranscoderException error;
       switch (code) {
         case 127:

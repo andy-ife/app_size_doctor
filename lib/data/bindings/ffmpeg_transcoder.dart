@@ -1,16 +1,17 @@
 import 'dart:io';
 
-/// Uses pre-installed ffmpeg binary on the user's system
-/// If ffmpeg is missing, transcoding fails
 class FfmpegTranscoder {
+  /// Uses pre-installed ffmpeg binary on the user's system
+  ///
+  /// If ffmpeg is missing, transcoding fails
   const FfmpegTranscoder({String? ffmpegPath});
 
   /// Write the output to a temp file.
   /// Do not pass the same path as inputPath and outputPath
-  Future<int> transcode(
+  ({int status, int hresult}) transcode(
       {required String inputPath,
       required String outputPath,
-      int quality = 85}) async {
+      int quality = 85}) {
     final ffmpegCommand = '''
             ffmpeg -y -i $inputPath
             -map 0:v? -map 0:a?
@@ -22,7 +23,7 @@ class FfmpegTranscoder {
 
     late final ProcessResult result;
     try {
-      result = await Process.run(ffmpegCommand, []);
+      result = Process.runSync(ffmpegCommand, []);
     } catch (e) {
       rethrow;
     }
@@ -31,6 +32,6 @@ class FfmpegTranscoder {
       throw result.stderr;
     }
 
-    return result.exitCode;
+    return (status: result.exitCode, hresult: result.exitCode);
   }
 }

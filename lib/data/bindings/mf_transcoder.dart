@@ -16,8 +16,10 @@ typedef MfTranscoderDart = int Function(
   Pointer<Int32> outHresult,
 );
 
-/// Native OS-level transcoding for Windows
 class MfTranscoder {
+  /// MediaFoundation
+  ///
+  /// Native OS-level transcoding for Windows
   MfTranscoder({String? dllPath})
       : _lib = DynamicLibrary.open(
             dllPath ?? 'native_libs/windows/mf_transcode.dll') {

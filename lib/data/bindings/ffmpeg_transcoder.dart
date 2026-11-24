@@ -17,10 +17,6 @@ class FfmpegTranscoder {
       '-y',
       '-i',
       inputPath,
-      '-map',
-      '0:v?',
-      '-map',
-      '0:a?',
       '-c:v',
       'libx264',
       '-preset',
@@ -43,10 +39,6 @@ class FfmpegTranscoder {
       result = Process.runSync(command, args);
     } catch (e) {
       rethrow;
-    }
-
-    if (result.stderr != null) {
-      throw result.stderr;
     }
 
     return (status: result.exitCode, hresult: result.exitCode);

@@ -392,7 +392,7 @@ namespace
 extern "C" int32_t mf_transcode_to_h264_mp3(
     const char *input_path_utf8,
     const char *output_path_utf8,
-    uint32_t video_quality,
+    uint32_t quality,
     int32_t *out_hresult)
 {
   HRESULT lastHr = S_OK;
@@ -419,7 +419,7 @@ extern "C" int32_t mf_transcode_to_h264_mp3(
     return MF_TRANSCODE_ERR_UTF8_CONVERT;
   }
 
-  UINT32 quality = (video_quality == 0) ? 85u : video_quality;
+  UINT32 quality = (quality == 0) ? 85u : quality;
   if (quality > 100u)
     quality = 100u;
 

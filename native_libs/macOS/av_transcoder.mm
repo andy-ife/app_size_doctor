@@ -310,7 +310,7 @@ int32_t RunTranscode(NSString* inputPath,
 extern "C" int32_t av_transcode_to_h264_mp3(
     const char* input_path_utf8,
     const char* output_path_utf8,
-    uint32_t video_quality,
+    uint32_t quality,
     int32_t* out_os_status) {
   int32_t code = noErr;
   auto setCode = [&](int32_t c) {
@@ -333,7 +333,7 @@ extern "C" int32_t av_transcode_to_h264_mp3(
       return AV_TRANSCODE_ERR_UTF8_CONVERT;
     }
 
-    int32_t status = RunTranscode(inputPath, outputPath, video_quality, code);
+    int32_t status = RunTranscode(inputPath, outputPath, quality, code);
     setCode(code);
     return status;
   }

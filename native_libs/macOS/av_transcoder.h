@@ -4,41 +4,43 @@
 #include <stdint.h>
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 #if defined(__APPLE__)
-  #define AV_TRANSCODER_API __attribute__((visibility("default")))
+#define AV_TRANSCODER_API __attribute__((visibility("default")))
 #else
-  #define AV_TRANSCODER_API
+#define AV_TRANSCODER_API
 #endif
 
-typedef enum AvTranscodeStatus {
-  AV_TRANSCODE_OK = 0,
-  AV_TRANSCODE_ERR_INVALID_ARG = 1,
-  AV_TRANSCODE_ERR_UTF8_CONVERT = 2,
-  AV_TRANSCODER_ERR_ASSET_LOAD = 3,
-  AV_TRANSCODER_ERR_READER_INIT = 4,
-  AV_TRANSCODE_ERR_WRITER_INIT = 5,
-  AV_TRANSCODER_ERR_STREAM_SETUP = 6,
-  AV_TRANSCODE_ERR_PIPELINE = 7
-} AvTranscodeStatus;
+  typedef enum AvTranscodeStatus
+  {
+    AV_TRANSCODE_OK = 0,
+    AV_TRANSCODE_ERR_INVALID_ARG = 1,
+    AV_TRANSCODE_ERR_UTF8_CONVERT = 2,
+    AV_TRANSCODER_ERR_ASSET_LOAD = 3,
+    AV_TRANSCODER_ERR_READER_INIT = 4,
+    AV_TRANSCODE_ERR_WRITER_INIT = 5,
+    AV_TRANSCODER_ERR_STREAM_SETUP = 6,
+    AV_TRANSCODE_ERR_PIPELINE = 7
+  } AvTranscodeStatus;
 
-/**
- * Transcodes a video file on macOS to H.264 video + MP3 audio
- * (128 kbps, 22050 Hz, 16-bit PCM decode -> MP3 encode).
- *
- * @param input_path_utf8   Null-terminated UTF-8 path to the input media file.
- * @param output_path_utf8  Null-terminated UTF-8 path for the output media file.
- * @param video_quality     Quality level in [1..100] (defaults to 85 if 0).
- * @param out_os_status     Optional pointer to receive an OSStatus / error code.
- * @return                  AV_TRANSCODE_OK (0) on success, non-zero otherwise.
- */
-AV_TRANSCODER_API int32_t av_transcode_to_h264_mp3(
-    const char* input_path_utf8,
-    const char* output_path_utf8,
-    uint32_t video_quality,
-    int32_t* out_os_status);
+  /**
+   * Transcodes a video file on macOS to H.264 video and/or MP3 audio
+   * (128 kbps, 22050 Hz, 16-bit PCM decode -> MP3 encode).
+   *
+   * @param input_path_utf8   Null-terminated UTF-8 path to the input media file.
+   * @param output_path_utf8  Null-terminated UTF-8 path for the output media file.
+   * @param quality     Quality level in [1..100] (defaults to 85 if 0).
+   * @param out_os_status     Optional pointer to receive an OSStatus / error code.
+   * @return                  AV_TRANSCODE_OK (0) on success, non-zero otherwise.
+   */
+  AV_TRANSCODER_API int32_t av_transcode_to_h264_mp3(
+      const char *input_path_utf8,
+      const char *output_path_utf8,
+      uint32_t quality,
+      int32_t *out_os_status);
 
 #ifdef __cplusplus
 }

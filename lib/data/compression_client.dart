@@ -1,46 +1,8 @@
 import 'package:asset_doctor/data/file_system_client.dart';
-import 'package:path/path.dart' as p;
+import 'package:asset_doctor/utils/asset_utils.dart';
 
 import 'package:compressor/compressor.dart' as cp;
 import 'package:image_compression/image_compression.dart';
-
-const imageExtensions = [
-  '.png',
-  '.jpg',
-  '.jpeg',
-  '.jfif',
-  '.svg',
-  '.tiff',
-  '.gif',
-  '.webp',
-  '.avif',
-  '.bmp'
-];
-
-const videoExtensions = [
-  '.mp4',
-  '.mkv',
-  '.avi',
-  '.webm',
-];
-
-const audioExtensions = [
-  '.m4a',
-  '.mp3',
-  '.ogg',
-  '.opus',
-  '.wav',
-];
-
-const textExtensions = [
-  '.yaml',
-  '.json',
-  '.xml',
-  '.txt',
-  '',
-];
-
-enum AssetType { image, video, audio, text, unkown }
 
 class CompressionClient {
   CompressionClient({required this.projectRoot, FileSystemClient? fs})
@@ -48,22 +10,6 @@ class CompressionClient {
 
   final String projectRoot;
   late final FileSystemClient fs;
-
-  bool isImage(String path) => imageExtensions.contains(p.extension(path, 2));
-  bool isVideo(String path) => videoExtensions.contains(p.extension(path, 2));
-  bool isAudio(String path) => audioExtensions.contains(p.extension(path, 2));
-  bool isText(String path) => textExtensions.contains(p.extension(path, 2));
-  bool isMedia(String path) => isImage(path) || isVideo(path) || isAudio(path);
-
-  AssetType getAssetType(String path) => isImage(path)
-      ? AssetType.image
-      : isVideo(path)
-          ? AssetType.video
-          : isAudio(path)
-              ? AssetType.audio
-              : isText(path)
-                  ? AssetType.text
-                  : AssetType.unkown;
 
   double compressImage(String path) {
     final input = ImageFile(filePath: path, rawBytes: fs.readAsBytes(path));
@@ -88,7 +34,7 @@ class CompressionClient {
   }
 
   double? compressMedia(String path) {
-    switch (getAssetType(path)) {
+    switch (AssetUtils.getAssetType(path)) {
       case AssetType.image:
         return compressImage(path);
       case AssetType.video:

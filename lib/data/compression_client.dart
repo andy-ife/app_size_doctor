@@ -10,12 +10,12 @@ import 'package:image_compression/image_compression.dart';
 
 class CompressionClient {
   CompressionClient({FileSystemClient? fs}) {
-    fs = fs ?? FileSystemClient();
-    if (fs.isWindows) {
+    this.fs = fs ?? FileSystemClient();
+    if (this.fs.isWindows) {
       mft = MfTranscoder();
-    } else if (fs.isMacOS) {
+    } else if (this.fs.isMacOS) {
       avt = AvTranscoder();
-    } else if (fs.isLinux) {
+    } else if (this.fs.isLinux) {
       fft = FfmpegTranscoder();
     } else {
       throw UnsupportedPlatformException(null);
@@ -27,22 +27,23 @@ class CompressionClient {
   MfTranscoder? mft;
   FfmpegTranscoder? fft;
 
-  int compressImage(String path) {
+  double compressImage(String path) {
     final input = ImageFile(filePath: path, rawBytes: fs.readAsBytes(path));
 
     final output = compress(ImageFileConfiguration(
         input: input, config: Configuration(jpgQuality: 50)));
 
     fs.writeAsBytes(path, output.rawBytes);
-    return (input.sizeInBytes - output.sizeInBytes);
+    return (input.sizeInBytes - output.sizeInBytes).toDouble();
   }
 
-  int compressVideoOrAudio(String path) {
+  double compressVideoOrAudio(String path) {
     ({int hresult, int status})? result;
-    late final int savedSpace;
+    late final double savedSpace;
 
     final tempPath =
         p.join(fs.projectRoot, '.dart_tool', '.temp', p.basename(path));
+    fs.create(tempPath);
     final inputLength = fs.lengthSync(path);
     try {
       result = fs.isWindows
@@ -56,14 +57,14 @@ class CompressionClient {
       final outputBytes = fs.readAsBytes(tempPath);
       fs.writeAsBytes(path, outputBytes);
       fs.deleteSync(tempPath);
-      savedSpace = inputLength - outputLength;
+      savedSpace = (inputLength - outputLength).toDouble();
       return savedSpace;
     } on Exception catch (e) {
       throw getTranscoderException(result?.status ?? e, result?.hresult, fs);
     }
   }
 
-  int? compressMedia(String path) {
+  double? compressMedia(String path) {
     switch (AssetUtils.getAssetType(path)) {
       case AssetType.image:
         return compressImage(path);
@@ -78,8 +79,8 @@ class CompressionClient {
     }
   }
 
-  int? compressAllMedia(Iterable<String> paths) {
-    int result = 0;
+  double? compressAllMedia(Iterable<String> paths) {
+    double result = 0;
     for (var p in paths) {
       final size = compressMedia(p) ?? 0;
       result += size;

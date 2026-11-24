@@ -12,18 +12,35 @@ class FfmpegTranscoder {
       {required String inputPath,
       required String outputPath,
       int quality = 85}) {
-    final ffmpegCommand = '''
-            ffmpeg -y -i $inputPath
-            -map 0:v? -map 0:a?
-            -c:v libx264 -preset slow -crf 21
-            -c:a libmp3lame -ar 22050 -sample_fmt s16 -b:a 128k
-            $outputPath
-          '''
-        .replaceAll('\n', ' ');
+    final command = 'ffmpeg';
+    final args = [
+      '-y',
+      '-i',
+      inputPath,
+      '-map',
+      '0:v?',
+      '-map',
+      '0:a?',
+      '-c:v',
+      'libx264',
+      '-preset',
+      'slow',
+      '-crf',
+      '21',
+      '-c:a',
+      'libmp3lame',
+      '-ar',
+      '22050',
+      '-sample_fmt',
+      's16p',
+      '-b:a',
+      '128k',
+      outputPath
+    ];
 
     late final ProcessResult result;
     try {
-      result = Process.runSync(ffmpegCommand, []);
+      result = Process.runSync(command, args);
     } catch (e) {
       rethrow;
     }

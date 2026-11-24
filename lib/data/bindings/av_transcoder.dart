@@ -23,7 +23,8 @@ class AvTranscoder {
   AvTranscoder({String? dllPath})
       : _lib = DynamicLibrary.open(
             dllPath ?? 'native_libs/macOS/av_transcoder.dll') {
-    _transcoder = _lib.lookupFunction('av_transcode_to_h264_mp3');
+    _transcoder = _lib.lookupFunction<AvTranscoderNative, AvTranscoderDart>(
+        'av_transcode_to_h264_mp3');
   }
   final DynamicLibrary _lib;
   late final AvTranscoderDart _transcoder;

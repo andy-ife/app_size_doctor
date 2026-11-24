@@ -28,6 +28,10 @@ class FileSystemClient {
     return fileExists(path);
   }
 
+  void create(String path) {
+    return File(path).createSync(recursive: true);
+  }
+
   String readAsString(String path) {
     return File(path).readAsStringSync();
   }

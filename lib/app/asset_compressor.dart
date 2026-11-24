@@ -4,6 +4,7 @@ import 'package:asset_doctor/data/file_system_client.dart';
 import 'package:asset_doctor/ui/console.dart';
 import 'package:asset_doctor/ui/extension.dart';
 import 'package:asset_doctor/ui/tree.dart';
+import 'package:asset_doctor/utils/asset_utils.dart';
 import 'package:path/path.dart' as p;
 
 class AssetCompressor {
@@ -17,7 +18,7 @@ class AssetCompressor {
     TreePrinter? tree,
   }) {
     this.projectRoot = projectRoot ?? fs.currentDir;
-    this.client = client ?? CompressionClient(projectRoot: this.projectRoot);
+    this.client = client ?? CompressionClient(fs: fs);
     this.ignoredDirs = ignoredDirs ?? ['test', 'build'];
     this.console = console ?? Console();
     this.tree = tree ?? TreePrinter();
@@ -39,7 +40,7 @@ class AssetCompressor {
     final List<String> assetsForCompression = [];
     double spaceofMediaAssetsBeforeCompress = 0;
 
-    final mediaAssets = usedAssets.where((e) => client.isMedia(e));
+    final mediaAssets = usedAssets.where((e) => AssetUtils.isMedia(e));
 
     for (final assetPath in mediaAssets) {
       final path = p.join(projectRoot, assetPath);
@@ -87,7 +88,7 @@ class AssetCompressor {
       console.printInfo(
           '\n${curResult.assetsForCompression.length} assets are marked for compression. ');
       console.printInputPrompt(
-          'Select some assets to ignore (remove from compression list)? (Y/N): ');
+          'Remove some assets from compression list? (Y/N): ');
       do {
         shouldKeepSome = console.read();
         if (shouldKeepSome.isYes) {

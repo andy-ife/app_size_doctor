@@ -97,13 +97,13 @@ class AssetCleaner {
       int? totalUnused;
       console.printInfo(
           '\n${curResult.unusedAssetsForDeletion.length} assets are marked for deletion. ');
-      console.printInputPrompt(
-          'Select some assets to keep (remove from deletion list)? (Y/N): ');
+      console
+          .printInputPrompt('Remove some assets from deletion list? (Y/N): ');
       do {
         shouldKeepSome = console.read();
         if (shouldKeepSome.isYes) {
           final toDelete = curResult.unusedAssetsForDeletion;
-          
+
           final indexes = console.printMultiSelect(
               message: '(Press <space> to select, <enter> to confirm)',
               options: toDelete);

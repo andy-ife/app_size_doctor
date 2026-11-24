@@ -1,0 +1,189 @@
+import 'dart:io';
+
+sealed class TranscoderException implements Exception {
+  final int? osCode;
+  const TranscoderException(this.osCode);
+
+  @override
+  String toString() => 'An error occured while transcoding: $osCode';
+}
+
+class InvalidArgumentException extends TranscoderException {
+  const InvalidArgumentException(super.osCode);
+  @override
+  String toString() => 'Invalid arguments passed to the transcoder: $osCode';
+}
+
+class Utf8ConversionException extends TranscoderException {
+  const Utf8ConversionException(super.osCode);
+  @override
+  String toString() => 'An error occurred during utf-8 conversion: $osCode';
+}
+
+class CommunicationInitException extends TranscoderException {
+  const CommunicationInitException(super.osCode);
+  @override
+  String toString() => 'Error initializing communication: $osCode';
+}
+
+class MfStartupException extends TranscoderException {
+  const MfStartupException(super.osCode);
+  @override
+  String toString() =>
+      'An error occurred while trying to initialize the Windows MediaFoundation APIs: $osCode';
+}
+
+class SourceReaderException extends TranscoderException {
+  const SourceReaderException(super.osCode);
+  @override
+  String toString() => 'An error occurred while parsing the input: $osCode';
+}
+
+class SinkWriterException extends TranscoderException {
+  const SinkWriterException(super.osCode);
+  @override
+  String toString() => 'An error occurred while processing the output: $osCode';
+}
+
+class MediaTypeException extends TranscoderException {
+  const MediaTypeException(super.osCode);
+  @override
+  String toString() => 'Invalid media type: $osCode';
+}
+
+class StreamSetupException extends TranscoderException {
+  const StreamSetupException(super.osCode);
+  @override
+  String toString() => 'An error occured while setting up the stream: $osCode';
+}
+
+class PipelineException extends TranscoderException {
+  const PipelineException(super.osCode);
+  @override
+  String toString() =>
+      'An error occured while transcoding a video/audio stream: $osCode';
+}
+
+class AssetLoadingException extends TranscoderException {
+  const AssetLoadingException(super.osCode);
+  @override
+  String toString() => 'An error occurred while loading an asset: $osCode';
+}
+
+class ReaderInitializationException extends TranscoderException {
+  const ReaderInitializationException(super.osCode);
+  @override
+  String toString() => 'An error occurred while parsing the input: $osCode';
+}
+
+class WriterInitializationException extends TranscoderException {
+  const WriterInitializationException(super.osCode);
+  @override
+  String toString() => 'An error occurred while processing the output: $osCode';
+}
+
+class UnexpectedException extends TranscoderException {
+  const UnexpectedException(super.osCode);
+  @override
+  String toString() => 'An unexpected error occurred while transcoding';
+}
+
+class UnsupportedPlatformException extends TranscoderException {
+  const UnsupportedPlatformException(super.osCode);
+  @override
+  String toString() => 'Unsupported platform';
+}
+
+class FfmpegNotFoundException extends TranscoderException {
+  const FfmpegNotFoundException(super.osCode);
+  @override
+  String toString() =>
+      'Ffmpeg not found. Please download ffmpeg and add it to your PATH or specify `ffmpegPath` as an argument\nhttps://ffmpeg.org/download.html';
+}
+
+TranscoderException handleTranscoderException(
+    dynamic code, int? osCode, Platform platform) {
+  if (code is Exception) {
+    throw code;
+  } else if (code is int) {
+    if (Platform.isWindows) {
+      late final TranscoderException error;
+      switch (code) {
+        case 1:
+          error = InvalidArgumentException(osCode);
+          break;
+        case 2:
+          error = Utf8ConversionException(osCode);
+          break;
+        case 3:
+          error = CommunicationInitException(osCode);
+          break;
+        case 4:
+          error = MfStartupException(osCode);
+          break;
+        case 5:
+          error = ReaderInitializationException(osCode);
+          break;
+        case 6:
+          error = WriterInitializationException(osCode);
+          break;
+        case 7:
+          error = MediaTypeException(osCode);
+          break;
+        case 8:
+          error = StreamSetupException(osCode);
+          break;
+        case 9:
+          error = PipelineException(osCode);
+          break;
+        default:
+          error = UnexpectedException(osCode);
+          break;
+      }
+      return error;
+    } else if (Platform.isMacOS) {
+      late final TranscoderException error;
+      switch (code) {
+        case 1:
+          error = InvalidArgumentException(osCode);
+          break;
+        case 2:
+          error = Utf8ConversionException(osCode);
+          break;
+        case 3:
+          error = AssetLoadingException(osCode);
+          break;
+        case 4:
+          error = ReaderInitializationException(osCode);
+          break;
+        case 5:
+          error = WriterInitializationException(osCode);
+          break;
+        case 6:
+          error = StreamSetupException(osCode);
+          break;
+        case 7:
+          error = PipelineException(osCode);
+          break;
+        default:
+          error = UnexpectedException(osCode);
+          break;
+      }
+      return error;
+    } else if (Platform.isLinux) {
+      late final TranscoderException error;
+      switch (code) {
+        case 127:
+          error = FfmpegNotFoundException(null);
+          break;
+        default:
+          error = UnexpectedException(osCode);
+      }
+      return error;
+    } else {
+      throw UnsupportedPlatformException(null);
+    }
+  } else {
+    throw UnexpectedException(null);
+  }
+}

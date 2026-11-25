@@ -48,15 +48,13 @@ class CompressionClient {
   }
 
   double compressVideoOrAudio(String path) {
-    ({int hresult, int status})? result;
-    late final double savedSpace;
-
     final tempPath =
         p.join(fs.projectRoot, '.dart_tool', '.temp', p.basename(path));
     fs.create(tempPath);
     final inputLength = fs.lengthSync(path);
+
     try {
-      result = fs.isWindows
+      final result = fs.isWindows
           ? mft!.transcode(
               inputPath: path,
               outputPath: tempPath,
@@ -75,15 +73,25 @@ class CompressionClient {
                       outputPath: tempPath,
                       quality: _videoQuality,
                     )
-                  : throw Exception();
+                  : throw UnsupportedPlatformException(null);
+
+      if (result.status != 0) {
+        throw getTranscoderException(result.status, result.hresult, fs);
+      }
+      if (!fs.fileExists(tempPath) || fs.lengthSync(tempPath) == 0) {
+        throw UnexpectedException(result.hresult);
+      }
+
       final outputLength = fs.lengthSync(tempPath);
       final outputBytes = fs.readAsBytes(tempPath);
       fs.writeAsBytes(path, outputBytes);
-      fs.deleteSync(tempPath);
-      savedSpace = (inputLength - outputLength).toDouble();
-      return savedSpace;
+      return (inputLength - outputLength).toDouble();
     } on Exception catch (e) {
-      throw getTranscoderException(result?.status ?? e, result?.hresult, fs);
+      throw getTranscoderException(e, null, fs);
+    } finally {
+      if (fs.fileExists(tempPath)) {
+        fs.deleteSync(tempPath);
+      }
     }
   }
 

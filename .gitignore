@@ -9,6 +9,11 @@ pubspec.lock
 # FVM Version Cache
 .fvm/
 
+# C++, Obj-C code
+*.cpp
+*.mm
+CMakeLists.txt
+
 # Test folders for development
 assets/
 fonts/

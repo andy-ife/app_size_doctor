@@ -29,12 +29,16 @@ extern "C"
     MF_TRANSCODE_ERR_SINK_WRITER = 6,
     MF_TRANSCODE_ERR_MEDIA_TYPE = 7,
     MF_TRANSCODE_ERR_STREAM_SETUP = 8,
-    MF_TRANSCODE_ERR_PIPELINE = 9
+    MF_TRANSCODE_ERR_PIPELINE = 9,
+    MF_TRANSCODE_ERR_UNSUPPORTED_CONTAINER = 10
   } MfTranscodeStatus;
 
   /**
-   * Transcodes a media file to H.264 video and/or MP3 audio (128 kbps, 22050 Hz, 16-bit)
+   * Transcodes a media file to H.264 video and/or MP3 audio (128 kbps, 44100 Hz, 16-bit)
    * using Windows Media Foundation quality-biased encoding.
+   *
+   * The output extension must select a Media Foundation sink container:
+   * .mp4/.m4v/.mov/.3gp/.3g2 for video, or .mp3/.m4a for audio-only.
    *
    * @param input_path_utf8   Null-terminated UTF-8 path to the input media file.
    * @param output_path_utf8  Null-terminated UTF-8 path for the output media file.

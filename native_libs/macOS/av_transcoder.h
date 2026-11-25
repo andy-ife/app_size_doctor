@@ -23,12 +23,15 @@ extern "C"
     AV_TRANSCODER_ERR_READER_INIT = 4,
     AV_TRANSCODE_ERR_WRITER_INIT = 5,
     AV_TRANSCODER_ERR_STREAM_SETUP = 6,
-    AV_TRANSCODE_ERR_PIPELINE = 7
+    AV_TRANSCODE_ERR_PIPELINE = 7,
+    AV_TRANSCODE_ERR_UNSUPPORTED_AUDIO_ONLY = 8,
+    AV_TRANSCODE_ERR_UNSUPPORTED_CONTAINER = 9
   } AvTranscodeStatus;
 
   /**
-   * Transcodes a video file on macOS to H.264 video and/or MP3 audio
-   * (128 kbps, 22050 Hz, 16-bit PCM decode -> MP3 encode).
+   * Transcodes a video file on macOS to H.264 video with AAC audio.
+   * Standalone audio files are not supported because AVFoundation has no MP3 encoder.
+   * Supported output extensions are .mp4, .m4v and .mov.
    *
    * @param input_path_utf8   Null-terminated UTF-8 path to the input media file.
    * @param output_path_utf8  Null-terminated UTF-8 path for the output media file.

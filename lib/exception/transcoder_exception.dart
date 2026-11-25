@@ -64,6 +64,20 @@ class PipelineException extends TranscoderException {
       'An error occured while transcoding a video/audio stream: $osCode';
 }
 
+class UnsupportedContainerException extends TranscoderException {
+  const UnsupportedContainerException(super.osCode);
+  @override
+  String toString() =>
+      'Unsupported output container. Use .mp4, .m4v, .mov, .3gp or .3g2 for video, or .mp3/.m4a for audio: $osCode';
+}
+
+class UnsupportedAudioOnlyException extends TranscoderException {
+  const UnsupportedAudioOnlyException(super.osCode);
+  @override
+  String toString() =>
+      'Standalone audio compression is not supported on macOS: $osCode';
+}
+
 class AssetLoadingException extends TranscoderException {
   const AssetLoadingException(super.osCode);
   @override
@@ -136,6 +150,9 @@ TranscoderException getTranscoderException(
         case 9:
           error = PipelineException(osCode);
           break;
+        case 10:
+          error = UnsupportedContainerException(osCode);
+          break;
         default:
           error = UnexpectedException(osCode);
           break;
@@ -164,6 +181,12 @@ TranscoderException getTranscoderException(
           break;
         case 7:
           error = PipelineException(osCode);
+          break;
+        case 8:
+          error = UnsupportedAudioOnlyException(osCode);
+          break;
+        case 9:
+          error = UnsupportedContainerException(osCode);
           break;
         default:
           error = UnexpectedException(osCode);

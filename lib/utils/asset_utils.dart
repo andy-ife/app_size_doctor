@@ -22,6 +22,10 @@ class AssetUtils {
 
   static const videoExtensions = [
     '.mp4',
+    '.m4v',
+    '.mov',
+    '.3gp',
+    '.3g2',
     '.mkv',
     '.avi',
     '.webm',

@@ -18,8 +18,17 @@
 16. Ensure the output file format after compression is same as input. Consider adding option for users to allow changing file format or not
 17. ~~Compression client should use fs, not dart:io directly.~~
 18. ~~Compressor should check for unused assets and advice deletion. It does NOT compress unused assets~~
-19. Allow users to set compression level
+19. ~~Allow users to set compression level~~
 20. ~~Add interactive picker for user to select files to NOT clean or NOT compress~~
 21. Optimize Android and iOS regex searches. Apply correct regex to correct file types only
 22. Don't be too quick to delete files. Consider adding used, unused, and indefinite/unclear states. Lean towards keeping unclear/indefinite files
 23. Move away from interact_cli dependency. Implement our own custom list selector
+
+24. Add support for Android, iOS asset folders
+25. Build the dynamic C libraries for Windows and macOS
+26. Write tests and setup CI
+27. Add LICENSE
+28. Remove test assets
+29. Create example app
+30. Add file exceptions
+31. Test and add/remove more file extensions

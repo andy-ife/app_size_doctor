@@ -1,4 +1,4 @@
-import 'dart:io';
+import 'package:asset_doctor/data/file_system_client.dart';
 
 class FfmpegTranscoder {
   /// Uses pre-installed ffmpeg binary on the user's system
@@ -9,9 +9,12 @@ class FfmpegTranscoder {
   /// Write the output to a temp file.
   /// Do not pass the same path as inputPath and outputPath
   ({int status, int hresult}) transcode(
-      {required String inputPath,
+      {required FileSystemClient fs,
+      required String inputPath,
       required String outputPath,
       int quality = 85}) {
+    assert(inputPath != outputPath,
+        'Do not pass the same path as inputPath and outputPath');
     final command = 'ffmpeg';
     final args = [
       '-y',
@@ -34,9 +37,9 @@ class FfmpegTranscoder {
       outputPath
     ];
 
-    late final ProcessResult result;
+    late final FsProcessResult result;
     try {
-      result = Process.runSync(command, args);
+      result = fs.runProcess(command, args);
     } catch (e) {
       rethrow;
     }

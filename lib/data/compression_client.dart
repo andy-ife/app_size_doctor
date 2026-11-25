@@ -51,7 +51,8 @@ class CompressionClient {
           : fs.isMacOS
               ? avt!.transcode(inputPath: path, outputPath: tempPath)
               : fs.isLinux
-                  ? fft!.transcode(inputPath: path, outputPath: tempPath)
+                  ? fft!
+                      .transcode(fs: fs, inputPath: path, outputPath: tempPath)
                   : throw Exception();
       final outputLength = fs.lengthSync(tempPath);
       final outputBytes = fs.readAsBytes(tempPath);

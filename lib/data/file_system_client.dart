@@ -9,6 +9,14 @@ class FileSystemClient {
   final String projectRoot;
 
   // ===========
+  // Process
+  // ===========
+  FsProcessResult runProcess(String executable, List<String> args) {
+    final result = Process.runSync(executable, args);
+    return FsProcessResult(result.exitCode);
+  }
+
+  // ===========
   // Platform
   // ===========
 
@@ -93,4 +101,9 @@ class FileSystemClient {
     }
     return files;
   }
+}
+
+final class FsProcessResult {
+  FsProcessResult(this.exitCode);
+  int exitCode;
 }

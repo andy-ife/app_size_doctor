@@ -1,8 +1,8 @@
-import 'package:asset_doctor/data/compression_client.dart';
-import 'package:asset_doctor/data/file_system_client.dart';
-import 'package:asset_doctor/ui/console.dart';
-import 'package:asset_doctor/utils/extension.dart';
-import 'package:asset_doctor/utils/asset_utils.dart';
+import 'package:media_asset_optimizer/data/compression_client.dart';
+import 'package:media_asset_optimizer/data/file_system_client.dart';
+import 'package:media_asset_optimizer/ui/console.dart';
+import 'package:media_asset_optimizer/utils/extension.dart';
+import 'package:media_asset_optimizer/utils/asset_utils.dart';
 import 'package:path/path.dart' as p;
 
 class CompressResult {
@@ -101,7 +101,7 @@ class AssetCompressor {
           message: 'space: Select  |  enter: Confirm selection',
           options: curResult.allMediaAssets.toList());
       final toRemove = curResult.allMediaAssets.indexed
-          .where((e) => indexes.contains(e.$1)) 
+          .where((e) => indexes.contains(e.$1))
           .map((e) => e.$2);
       totalAssets =
           curResult.allMediaAssets.where((e) => !toRemove.contains(e)).toList();

@@ -1,10 +1,19 @@
-import 'package:asset_doctor/data/file_system_client.dart';
-import 'package:asset_doctor/directories.dart';
-import 'package:asset_doctor/service/android_assets_search_service.dart';
-import 'package:asset_doctor/service/assets_search_service.dart';
-import 'package:asset_doctor/service/ios_assets_search_service.dart';
-import 'package:asset_doctor/ui/console.dart';
+import 'package:media_asset_optimizer/data/file_system_client.dart';
+import 'package:media_asset_optimizer/service/android_assets_search_service.dart';
+import 'package:media_asset_optimizer/service/assets_search_service.dart';
+import 'package:media_asset_optimizer/service/ios_assets_search_service.dart';
+import 'package:media_asset_optimizer/ui/console.dart';
 import 'package:path/path.dart' as p;
+
+// ignore_for_file: constant_identifier_names
+
+const ASSETS_DIR = 'assets';
+const ANDROID_ASSETS_DIR = 'android/app/src/main/res';
+const IOS_ASSETS_DIR = 'ios/Runner/Assets/xcassets';
+
+// const MACOS_ASSETS_DIR = 'macos/Runner/Assets.xcassets';
+// const WINDOWS_ASSETS_DIR = 'windows/runner/resources';
+// const LINUX_ASSETS_DIR = 'linux/runner/resources';
 
 typedef AssetUsageScanResults = ({
   List<String> pubspecAssets,

@@ -6,7 +6,7 @@
     "configurations": [
         
         {
-            "name": "asset_doctor",
+            "name": "media_asset_optimizer",
             "request": "launch",
             "type": "dart"
         }

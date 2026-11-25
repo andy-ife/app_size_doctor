@@ -1,4 +1,4 @@
-import 'package:asset_doctor/app.dart';
+import 'package:media_asset_optimizer/app.dart';
 
 void main(List<String> arguments) {
   App.start(arguments);

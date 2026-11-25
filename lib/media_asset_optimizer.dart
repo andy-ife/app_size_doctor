@@ -1,9 +1,9 @@
-import 'package:asset_doctor/app/analysis_printer.dart';
-import 'package:asset_doctor/app/asset_compressor.dart';
-import 'package:asset_doctor/ui/cli.dart';
+import 'package:media_asset_optimizer/app/analysis_printer.dart';
+import 'package:media_asset_optimizer/app/asset_compressor.dart';
+import 'package:media_asset_optimizer/ui/cli.dart';
 
-class AssetDoctor {
-  const AssetDoctor(
+class MediaAssetOptimizer {
+  const MediaAssetOptimizer(
       {required this.cliMode,
       required this.assetCompressor,
       required this.analysisPrinter});

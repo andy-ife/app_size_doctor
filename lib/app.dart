@@ -1,11 +1,11 @@
 import 'dart:io';
-import 'package:asset_doctor/app/analysis_printer.dart';
-import 'package:asset_doctor/app/asset_compressor.dart';
-import 'package:asset_doctor/asset_doctor.dart';
-import 'package:asset_doctor/app/asset_usage_scanner.dart';
-import 'package:asset_doctor/data/file_system_client.dart';
-import 'package:asset_doctor/ui/cli.dart';
-import 'package:asset_doctor/ui/console.dart';
+import 'package:media_asset_optimizer/app/analysis_printer.dart';
+import 'package:media_asset_optimizer/app/asset_compressor.dart';
+import 'package:media_asset_optimizer/app/asset_usage_scanner.dart';
+import 'package:media_asset_optimizer/media_asset_optimizer.dart';
+import 'package:media_asset_optimizer/data/file_system_client.dart';
+import 'package:media_asset_optimizer/ui/cli.dart';
+import 'package:media_asset_optimizer/ui/console.dart';
 import 'package:path/path.dart' as p;
 
 const test_asset_reference2 = 'test_pic2.jpg';
@@ -61,7 +61,7 @@ class App {
     final initialData = await scanner.init();
 
     // Start
-    final assetDoctor = AssetDoctor(
+    final assetDoctor = MediaAssetOptimizer(
         cliMode: cliMode,
         assetCompressor: AssetCompressor(
           allAssets: initialData.allAssets,

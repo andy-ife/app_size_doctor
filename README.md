@@ -1,4 +1,4 @@
-### Asset Doctor
+### Media Asset Optimizer
 
 Reduce your app size
 

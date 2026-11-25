@@ -1,4 +1,4 @@
-import 'package:asset_doctor/service/asset_id/ios_asset_id.dart';
+import 'package:media_asset_optimizer/service/asset_id/ios_asset_id.dart';
 import 'package:path/path.dart' as p;
 
 class IosAssetsSearchService {

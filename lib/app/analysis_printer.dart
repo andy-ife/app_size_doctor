@@ -1,7 +1,7 @@
-import 'package:asset_doctor/app/asset_compressor.dart';
-import 'package:asset_doctor/data/file_system_client.dart';
-import 'package:asset_doctor/ui/console.dart';
-import 'package:asset_doctor/utils/extension.dart';
+import 'package:media_asset_optimizer/app/asset_compressor.dart';
+import 'package:media_asset_optimizer/data/file_system_client.dart';
+import 'package:media_asset_optimizer/ui/console.dart';
+import 'package:media_asset_optimizer/utils/extension.dart';
 import 'package:path/path.dart' as p;
 
 class AnalysisPrinter {
@@ -74,8 +74,7 @@ class AnalysisPrinter {
   /// [printCompressAnalysis] breakdown.
   void printDryRunAnalysis(CompressResult compressResult) {
     console.printHeader('Dry Run Analysis');
-    console.printInfo(
-        'No files were changed. Here is what Asset Doctor could free up:');
+    console.printInfo('No files were changed. Here is what could be freed up:');
 
     final totalForCompression = compressResult.assetsForCompression.length;
 

@@ -1,5 +1,5 @@
 import 'package:args/args.dart';
-import 'package:asset_doctor/ui/console.dart';
+import 'package:media_asset_optimizer/ui/console.dart';
 
 enum CliMode { compressAll, compressSome, dryRun, none }
 
@@ -24,7 +24,7 @@ class Cli {
     bool dryRun = argResults['dry-run'] as bool;
     final noArgs = !compressAll && !dryRun && !requestingHelp;
 
-    console.printHeader('Asset Doctor');
+    console.printHeader('Media Asset Optimizer');
 
     if (noArgs) {
       console.printInfo('Get started');
@@ -74,7 +74,7 @@ class Cli {
     console.printHeader("Help");
     console.printInfo('Optimize your project\'s assets');
     console.printInfo("\nMain command:");
-    console.printHint('`dart run asset_doctor`\n');
+    console.printHint('`dart run media_asset_optimizer`\n');
     console.printInfo('Flags (optional):');
     console.printInfo(
         '${'-a, --all'.padRight(PADDING)}Compress all project assets');

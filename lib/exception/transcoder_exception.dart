@@ -1,4 +1,4 @@
-import 'package:asset_doctor/data/file_system_client.dart';
+import 'package:media_asset_optimizer/data/file_system_client.dart';
 
 sealed class TranscoderException implements Exception {
   final int? osCode;

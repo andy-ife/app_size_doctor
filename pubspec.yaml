@@ -1,7 +1,7 @@
-name: asset_doctor
-description: Clean up unused assets and optimize the ones you use. Handles images, audio, video, json, fonts, xml, yaml, text and frag files.
+name: media_asset_optimizer
+description: Compress image, video, and audio assets to reduce your app size
 version: 1.0.0
-repository: https://github.com/andy-ife/asset_doctor
+repository: https://github.com/andy-ife/media_asset_optimizer
 
 environment:
   sdk: ^3.0.0

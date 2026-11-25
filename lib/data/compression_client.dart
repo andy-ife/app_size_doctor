@@ -9,7 +9,7 @@ import 'package:path/path.dart' as p;
 import 'package:image_compression/image_compression.dart';
 
 class CompressionClient {
-  CompressionClient({FileSystemClient? fs}) {
+  CompressionClient({FileSystemClient? fs, this.quality}) {
     this.fs = fs ?? FileSystemClient();
     if (this.fs.isWindows) {
       mft = MfTranscoder();
@@ -23,15 +23,25 @@ class CompressionClient {
   }
 
   late final FileSystemClient fs;
+
+  /// File quality from 1 (smallest file) to 100 (best quality).
+  ///
+  /// Each media type keeps its own default when this is null.
+  final int? quality;
+
   AvTranscoder? avt;
   MfTranscoder? mft;
   FfmpegTranscoder? fft;
+
+  int get _imageQuality => (quality ?? 50).clamp(1, 100).toInt();
+
+  int get _videoQuality => (quality ?? 85).clamp(1, 100).toInt();
 
   double compressImage(String path) {
     final input = ImageFile(filePath: path, rawBytes: fs.readAsBytes(path));
 
     final output = compress(ImageFileConfiguration(
-        input: input, config: Configuration(jpgQuality: 50)));
+        input: input, config: Configuration(jpgQuality: _imageQuality)));
 
     fs.writeAsBytes(path, output.rawBytes);
     return (input.sizeInBytes - output.sizeInBytes).toDouble();
@@ -47,12 +57,24 @@ class CompressionClient {
     final inputLength = fs.lengthSync(path);
     try {
       result = fs.isWindows
-          ? mft!.transcode(inputPath: path, outputPath: tempPath)
+          ? mft!.transcode(
+              inputPath: path,
+              outputPath: tempPath,
+              quality: _videoQuality,
+            )
           : fs.isMacOS
-              ? avt!.transcode(inputPath: path, outputPath: tempPath)
+              ? avt!.transcode(
+                  inputPath: path,
+                  outputPath: tempPath,
+                  quality: _videoQuality,
+                )
               : fs.isLinux
-                  ? fft!
-                      .transcode(fs: fs, inputPath: path, outputPath: tempPath)
+                  ? fft!.transcode(
+                      fs: fs,
+                      inputPath: path,
+                      outputPath: tempPath,
+                      quality: _videoQuality,
+                    )
                   : throw Exception();
       final outputLength = fs.lengthSync(tempPath);
       final outputBytes = fs.readAsBytes(tempPath);

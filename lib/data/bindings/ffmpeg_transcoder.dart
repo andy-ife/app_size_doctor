@@ -15,6 +15,14 @@ class FfmpegTranscoder {
       int quality = 85}) {
     assert(inputPath != outputPath,
         'Do not pass the same path as inputPath and outputPath');
+
+    final normalizedQuality = quality <= 0 ? 85 : quality.clamp(1, 100).toInt();
+    // Map quality (higher is better) to H.264 CRF (higher is smaller).
+    // Quality 85 keeps the previous default of CRF 21.
+    final crf =
+        (21 + (85 - normalizedQuality) * (30 / 84)).round().clamp(0, 51);
+    final audioBitrate = (normalizedQuality * 1.5).round().clamp(32, 320);
+
     final command = 'ffmpeg';
     final args = [
       '-y',
@@ -25,7 +33,7 @@ class FfmpegTranscoder {
       '-preset',
       'slow',
       '-crf',
-      '21',
+      '$crf',
       '-c:a',
       'libmp3lame',
       '-ar',
@@ -33,7 +41,7 @@ class FfmpegTranscoder {
       '-sample_fmt',
       's16p',
       '-b:a',
-      '128k',
+      '${audioBitrate}k',
       outputPath
     ];
 

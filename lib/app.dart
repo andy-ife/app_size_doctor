@@ -52,21 +52,35 @@ class App {
 
     final scanner = AssetUsageScanner(fs: fs);
 
-    final cliMode = Cli().start(args);
+    final cli = Cli();
+    final cliMode = cli.start(args);
 
     if (cliMode == CliMode.none) {
       exit(0);
     }
 
-    final initialData = await scanner.init();
+    final AssetUsageScanResults initialData;
+    if (cliMode == CliMode.compressFile) {
+      // A single file does not need the whole project scanned.
+      initialData = (
+        pubspecAssets: <String>[],
+        allNormalizedLiterals: <String>{},
+        allAssets: <String>{},
+        usedAssets: <String>{},
+      );
+    } else {
+      initialData = await scanner.init();
+    }
 
     // Start
     final mediaOpt = MediaAssetOptimizer(
         cliMode: cliMode,
+        singleFile: cli.singleFile,
         assetCompressor: AssetCompressor(
           allAssets: initialData.allAssets,
           usedAssets: initialData.usedAssets,
           fs: scanner.fs,
+          quality: cli.quality,
         ),
         analysisPrinter: AnalysisPrinter(
           usedAssets: initialData.usedAssets,

@@ -6,9 +6,13 @@ class MediaAssetOptimizer {
   const MediaAssetOptimizer(
       {required this.cliMode,
       required this.assetCompressor,
-      required this.analysisPrinter});
+      required this.analysisPrinter,
+      this.singleFile});
 
   final CliMode cliMode;
+
+  /// Asset to compress when [cliMode] is [CliMode.compressFile].
+  final String? singleFile;
 
   final AssetCompressor assetCompressor;
   final AnalysisPrinter analysisPrinter;
@@ -23,6 +27,18 @@ class MediaAssetOptimizer {
 
           if (result.hasCompressed) {
             analysisPrinter.printPubspecAnalysis();
+            analysisPrinter.printWorkSummary(result);
+          }
+          break;
+        }
+      case CliMode.compressFile:
+        {
+          final assetPath = singleFile;
+          if (assetPath == null) {
+            break;
+          }
+          final result = await assetCompressor.compressFile(assetPath);
+          if (result != null && result.hasCompressed) {
             analysisPrinter.printWorkSummary(result);
           }
           break;

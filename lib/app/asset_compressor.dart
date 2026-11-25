@@ -31,15 +31,20 @@ class AssetCompressor {
     required this.allAssets,
     required this.usedAssets,
     required this.fs,
+    this.quality,
     CompressionClient? client,
     Console? console,
   }) : console = console ?? Console() {
-    this.client = client ?? CompressionClient(fs: fs);
+    this.client = client ?? CompressionClient(fs: fs, quality: quality);
   }
 
   final Set<String> allAssets;
   final Set<String> usedAssets;
   final FileSystemClient fs;
+
+  /// File quality from 1 (smallest file) to 100 (best quality).
+  final int? quality;
+
   late final CompressionClient client;
   final Console console;
 
@@ -83,6 +88,65 @@ class AssetCompressor {
         hasAnalyzed: true,
         hasCompressed: false);
     return _result!;
+  }
+
+  /// Compress one asset instead of the whole project.
+  ///
+  /// [assetPath] may be absolute or relative to the project root.
+  Future<CompressResult?> compressFile(String assetPath) async {
+    final relativePath = _normalizeAssetPath(assetPath);
+    final absolutePath = p.join(fs.projectRoot, relativePath);
+
+    if (!fs.fileExists(absolutePath)) {
+      console.printError('File not found: "$assetPath"');
+      return null;
+    }
+
+    if (!AssetUtils.isMedia(relativePath)) {
+      console.printError('Unsupported media file: "$assetPath"');
+      return null;
+    }
+
+    final size = fs.lengthSync(absolutePath);
+    if (size <= 0) {
+      console.printWarning('File is empty, skipping compression: "$assetPath"');
+      return null;
+    }
+
+    final result = CompressResult(
+      allMediaAssets: {relativePath},
+      assetsForCompression: [relativePath],
+      assetsForCompressionTree: console.buildTree([relativePath]),
+      spaceOfMediaAssetsBeforeCompress: size.toDouble(),
+      potentiallySavedSpace: size * 0.6,
+      spaceOfMediaAssetsAfterCompress: null,
+      hasAnalyzed: true,
+      hasCompressed: false,
+    );
+    _result = result;
+
+    console.printInfo('\nCompressing single asset: $relativePath');
+    final freedSpace = compressAssets([relativePath]);
+
+    _result = result
+      ..spaceOfMediaAssetsAfterCompress =
+          (size - freedSpace).clamp(0, double.infinity).toDouble()
+      ..hasCompressed = freedSpace > 0;
+
+    if (freedSpace > 0) {
+      console.printSuccess(
+          '\n✨ You have freed up ${freedSpace.toStorageString()} of space.');
+    } else {
+      console.printError('Unable to compress this asset');
+    }
+
+    return _result;
+  }
+
+  String _normalizeAssetPath(String assetPath) {
+    final absolutePath =
+        p.isAbsolute(assetPath) ? assetPath : p.join(fs.projectRoot, assetPath);
+    return p.relative(absolutePath, from: fs.projectRoot).replaceAll('\\', '/');
   }
 
   Future<CompressResult?> compress({bool selectAssetsToIgnore = false}) async {
@@ -179,7 +243,7 @@ class AssetCompressor {
               '\nCompressed: $assetRelativePath: -${res.toStorageString()}');
         } else {
           console.printWarning(
-              '\nCould not compress further: $assetRelativePath. Consider increasing the compression level');
+              '\nCould not compress further: $assetRelativePath. Consider lowering the quality setting');
         }
       } catch (e) {
         console.printError('Error compressing $path: $e');

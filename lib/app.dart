@@ -61,7 +61,7 @@ class App {
     final initialData = await scanner.init();
 
     // Start
-    final assetDoctor = MediaAssetOptimizer(
+    final mediaOpt = MediaAssetOptimizer(
         cliMode: cliMode,
         assetCompressor: AssetCompressor(
           allAssets: initialData.allAssets,
@@ -74,7 +74,7 @@ class App {
           fs: scanner.fs,
         ));
 
-    await assetDoctor.run();
+    await mediaOpt.run();
     exit(0);
   }
 }

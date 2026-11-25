@@ -18,20 +18,21 @@ class AnalysisPrinter {
   final Console console;
 
   void printCompressAnalysis(CompressResult result) {
-    console.printHeader('Asset Usage Analysis');
+    console.printHeader('Analysis');
 
-    console.printSubHeader(
-        'Potentially Used assets (Found in assets/ and path/name found as a string somewhere in the code):',
-        nl: false);
-    if (result.assetsForCompression.isNotEmpty) {
-      console.printInfo('(${result.assetsForCompression.length} files)');
-      console.printMatrix(result.assetsForCompression.toSet());
-    } else {
-      console.printInfo('None found.');
-    }
-
+    // console.printSubHeader(
+    //     'Potentially Used assets (Found in assets/ and path/name found as a string somewhere in the code):',
+    //     nl: false);
+    // if (result.assetsForCompression.isNotEmpty) {
+    //   console.printInfo('(${result.assetsForCompression.length} files)');
+    //   console.printMatrix(result.assetsForCompression.toSet());
+    // } else {
+    //   console.printInfo('None found.');
+    // }
+    final isAll =
+        result.allMediaAssets.length == result.assetsForCompression.length;
     console.printWarning(
-        '\n🔨 Assets MARKED FOR COMPRESSION (Potentially Used assets only):');
+        '🔨 Assets MARKED FOR COMPRESSION (${isAll ? 'All' : 'Selected'} assets ${isAll ? '' : 'only'}):');
     if (result.assetsForCompression.isNotEmpty) {
       console.printWarning('(${result.assetsForCompression.length} files)');
       console.printTree(paths: result.assetsForCompressionTree, prefix: '');

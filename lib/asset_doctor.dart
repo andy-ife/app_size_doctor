@@ -15,9 +15,10 @@ class AssetDoctor {
 
   Future<void> run() async {
     switch (cliMode) {
-      case CliMode.compress:
+      case CliMode.compressAll || CliMode.compressSome:
         {
-          final result = await compress();
+          final result = await compress(
+              selectAssetsToIgnore: cliMode == CliMode.compressSome);
           if (result == null) return;
 
           if (result.hasCompressed) {
@@ -45,11 +46,12 @@ class AssetDoctor {
     analysisPrinter.printDryRunAnalysis(compressResult);
   }
 
-  Future<CompressResult?> compress() async {
+  Future<CompressResult?> compress({required bool selectAssetsToIgnore}) async {
     final compress0 = assetCompressor.analyze();
     analysisPrinter.printCompressAnalysis(compress0);
 
-    final compress1 = await assetCompressor.compress();
+    final compress1 = await assetCompressor.compress(
+        selectAssetsToIgnore: selectAssetsToIgnore);
     return compress1;
   }
 }

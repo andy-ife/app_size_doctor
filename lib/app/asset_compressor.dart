@@ -51,9 +51,9 @@ class AssetCompressor {
     double spaceofMediaAssetsBeforeCompress = 0;
 
     final allMediaAssets = allAssets.where((e) => AssetUtils.isMedia(e));
-    final usedMediaAssets = usedAssets.where((e) => AssetUtils.isMedia(e));
+    // final usedMediaAssets = usedAssets.where((e) => AssetUtils.isMedia(e));
 
-    for (final assetPath in usedMediaAssets) {
+    for (final assetPath in allMediaAssets) {
       final path = p.join(fs.projectRoot, assetPath);
       bool isNonEmpty = false;
       try {
@@ -85,31 +85,31 @@ class AssetCompressor {
     return _result!;
   }
 
-  Future<CompressResult?> compress() async {
+  Future<CompressResult?> compress({bool selectAssetsToIgnore = false}) async {
     if (_result == null || _result?.hasAnalyzed == false) {
       console.printError('Run analysis before compression');
       return null;
     }
 
     var curResult = _result!;
-    final unusedAssets = curResult.allMediaAssets
-        .difference(curResult.assetsForCompression.toSet());
 
-    if (unusedAssets.isNotEmpty) {
+    if (selectAssetsToIgnore) {
       List<String> totalAssets = [];
-      console.printInfo(
-          'The following assets appear to be unused. Would you like to include some of them in the compression?');
+      console
+          .printInfo('\nSelect assets to skip (Remove from compression list)');
       final indexes = console.printMultiSelect(
-          message: '<space>: Select  <enter>: Confirm selection',
-          options: unusedAssets.toList());
-      final toAdd = unusedAssets.indexed
-          .where((e) => indexes.contains(e.$1))
+          message: 'space: Select  |  enter: Confirm selection',
+          options: curResult.allMediaAssets.toList());
+      final toRemove = curResult.allMediaAssets.indexed
+          .where((e) => indexes.contains(e.$1)) 
           .map((e) => e.$2);
-      totalAssets = [...curResult.assetsForCompression, ...toAdd];
+      totalAssets =
+          curResult.allMediaAssets.where((e) => !toRemove.contains(e)).toList();
       curResult.assetsForCompression = totalAssets;
 
       if (curResult.assetsForCompression.isNotEmpty) {
-        console.printWarning('\nMarking all media assets for compression...');
+        console.printWarning(
+            '\nMarking ${curResult.assetsForCompression.length}/${curResult.allMediaAssets.length} assets for compression...');
       } else {
         console.printSuccess('\n✨ Nothing to compress. Keeping all assets');
         return curResult;

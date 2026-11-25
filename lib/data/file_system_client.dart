@@ -3,10 +3,16 @@ import 'dart:typed_data';
 import 'package:path/path.dart' as p;
 
 /// Simple wrapper around dart:io
+/// Contains information about the current project and directories
 class FileSystemClient {
-  FileSystemClient({String? projectRoot})
-      : projectRoot = projectRoot ?? Directory.current.absolute.path;
+  FileSystemClient(
+      {String? projectRoot, String? pubspecPath, List<String>? ignoredDirs})
+      : projectRoot = projectRoot ?? Directory.current.absolute.path,
+        pubspecPath = pubspecPath ?? p.join(projectRoot!, 'pubspec.yaml'),
+        ignoredDirs = ignoredDirs ?? ['test', 'build'];
   final String projectRoot;
+  final String pubspecPath;
+  final List<String> ignoredDirs; // folders to ignore during code search
 
   // ===========
   // Process
@@ -27,6 +33,10 @@ class FileSystemClient {
   // ============
   // File
   // ============
+
+  String readPubspec() {
+    return readAsString(pubspecPath);
+  }
 
   bool fileExists(String path) {
     return File(path).existsSync();

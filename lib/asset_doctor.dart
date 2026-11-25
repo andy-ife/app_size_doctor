@@ -1,6 +1,5 @@
 import 'package:asset_doctor/app/analysis_printer.dart';
 import 'package:asset_doctor/app/asset_compressor.dart';
-import 'package:asset_doctor/app/models/compress_result.dart';
 import 'package:asset_doctor/ui/cli.dart';
 
 class AssetDoctor {

@@ -1,37 +1,47 @@
-import 'package:asset_doctor/app/models/compress_result.dart';
 import 'package:asset_doctor/data/compression_client.dart';
 import 'package:asset_doctor/data/file_system_client.dart';
 import 'package:asset_doctor/ui/console.dart';
-import 'package:asset_doctor/ui/extension.dart';
-import 'package:asset_doctor/ui/tree.dart';
+import 'package:asset_doctor/utils/extension.dart';
 import 'package:asset_doctor/utils/asset_utils.dart';
 import 'package:path/path.dart' as p;
 
+class CompressResult {
+  CompressResult(
+      {required this.allMediaAssets,
+      required this.assetsForCompression,
+      required this.assetsForCompressionTree,
+      required this.spaceOfMediaAssetsBeforeCompress,
+      required this.potentiallySavedSpace,
+      required this.spaceOfMediaAssetsAfterCompress,
+      required this.hasAnalyzed,
+      required this.hasCompressed});
+
+  Set<String> allMediaAssets;
+  List<String> assetsForCompression; // by default, these are used assets
+  Map<String, dynamic> assetsForCompressionTree;
+  double spaceOfMediaAssetsBeforeCompress;
+  double potentiallySavedSpace;
+  double? spaceOfMediaAssetsAfterCompress;
+  bool hasAnalyzed;
+  bool hasCompressed;
+}
+
 class AssetCompressor {
   AssetCompressor({
+    required this.allAssets,
     required this.usedAssets,
     required this.fs,
     CompressionClient? client,
-    String? projectRoot,
-    List<String>? ignoredDirs,
     Console? console,
-    TreePrinter? tree,
-  }) {
-    this.projectRoot = projectRoot ?? fs.currentDir;
+  }) : console = console ?? Console() {
     this.client = client ?? CompressionClient(fs: fs);
-    this.ignoredDirs = ignoredDirs ?? ['test', 'build'];
-    this.console = console ?? Console();
-    this.tree = tree ?? TreePrinter();
   }
 
+  final Set<String> allAssets;
   final Set<String> usedAssets;
   final FileSystemClient fs;
-
   late final CompressionClient client;
-  late final String projectRoot;
-  late final List<String> ignoredDirs; // Folders to ignore during code search
-  late final Console console;
-  late final TreePrinter tree;
+  final Console console;
 
   CompressResult? _result;
   CompressResult? get result => _result;
@@ -40,10 +50,11 @@ class AssetCompressor {
     final List<String> assetsForCompression = [];
     double spaceofMediaAssetsBeforeCompress = 0;
 
-    final mediaAssets = usedAssets.where((e) => AssetUtils.isMedia(e));
+    final allMediaAssets = allAssets.where((e) => AssetUtils.isMedia(e));
+    final usedMediaAssets = usedAssets.where((e) => AssetUtils.isMedia(e));
 
-    for (final assetPath in mediaAssets) {
-      final path = p.join(projectRoot, assetPath);
+    for (final assetPath in usedMediaAssets) {
+      final path = p.join(fs.projectRoot, assetPath);
       bool isNonEmpty = false;
       try {
         if (fs.fileExists(path)) {
@@ -60,15 +71,15 @@ class AssetCompressor {
       }
     }
 
-    final compressTree = tree.build(assetsForCompression);
+    final compressTree = console.buildTree(assetsForCompression.toList());
 
     _result = CompressResult(
-        usedAssets: mediaAssets.toSet(),
+        allMediaAssets: allMediaAssets.toSet(),
         assetsForCompression: assetsForCompression,
         assetsForCompressionTree: compressTree,
         spaceOfMediaAssetsBeforeCompress: spaceofMediaAssetsBeforeCompress,
-        potentiallySavedSpace: spaceofMediaAssetsBeforeCompress * 0.6,
         spaceOfMediaAssetsAfterCompress: null,
+        potentiallySavedSpace: spaceofMediaAssetsBeforeCompress * 0.6,
         hasAnalyzed: true,
         hasCompressed: false);
     return _result!;
@@ -81,47 +92,32 @@ class AssetCompressor {
     }
 
     var curResult = _result!;
+    final unusedAssets = curResult.allMediaAssets
+        .difference(curResult.assetsForCompression.toSet());
 
-    if (curResult.assetsForCompression.isNotEmpty) {
-      String? shouldKeepSome;
-      int? totalAssets;
+    if (unusedAssets.isNotEmpty) {
+      List<String> totalAssets = [];
       console.printInfo(
-          '\n${curResult.assetsForCompression.length} assets are marked for compression. ');
-      console.printInputPrompt(
-          'Remove some assets from compression list? (Y/N): ');
-      do {
-        shouldKeepSome = console.read();
-        if (shouldKeepSome.isYes) {
-          final toCompress = curResult.assetsForCompression;
-
-          final indexes = console.printMultiSelect(
-              message: '(Press <space> to select, <enter> to confirm)',
-              options: toCompress);
-
-          final toKeep = toCompress.indexed
-              .where((e) => indexes.contains(e.$1))
-              .map((e) => e.$2);
-
-          totalAssets = toCompress.length;
-          curResult = curResult.copyWith(
-              assetsForCompression:
-                  toCompress.where((e) => !toKeep.contains(e)).toList());
-        } else if (shouldKeepSome.isNo) {
-          // do nothing. Continue code
-        } else {
-          console.printError('Invalid option. Please enter "y" or "n"');
-        }
-      } while (!shouldKeepSome.isYesOrNo);
+          'The following assets appear to be unused. Would you like to include some of them in the compression?');
+      final indexes = console.printMultiSelect(
+          message: '<space>: Select  <enter>: Confirm selection',
+          options: unusedAssets.toList());
+      final toAdd = unusedAssets.indexed
+          .where((e) => indexes.contains(e.$1))
+          .map((e) => e.$2);
+      totalAssets = [...curResult.assetsForCompression, ...toAdd];
+      curResult.assetsForCompression = totalAssets;
 
       if (curResult.assetsForCompression.isNotEmpty) {
-        console.printWarning(
-            '\nMarking ${shouldKeepSome.isYes ? '${curResult.assetsForCompression.length}/$totalAssets' : 'all'} media assets for compression...');
+        console.printWarning('\nMarking all media assets for compression...');
       } else {
         console.printSuccess('\n✨ Nothing to compress. Keeping all assets');
         return curResult;
       }
-    } else {
-      console.printSuccess("\n✨ Nothing to compress. No media assets found");
+    }
+
+    if (curResult.assetsForCompression.isEmpty) {
+      console.printSuccess('No assets to compress. Keeping all assets...');
       return curResult;
     }
 
@@ -149,19 +145,19 @@ class AssetCompressor {
             });
       } else if (finalConfirm.isNo) {
         console.printError('Compression cancelled by user.');
-        _result = curResult.copyWith(
-            hasCompressed: false, spaceOfMediaAssetsAfterCompress: () => null);
+        _result = curResult
+          ..hasCompressed = false
+          ..spaceOfMediaAssetsAfterCompress = null;
         return _result;
       } else {
         console.printError('Invalid option. Please enter "y" or "n"');
       }
     } while (!finalConfirm.isYesOrNo);
 
-    _result = curResult.copyWith(
-      spaceOfMediaAssetsAfterCompress: () =>
-          curResult.spaceOfMediaAssetsBeforeCompress - freedSpace,
-      hasCompressed: true,
-    );
+    _result = curResult
+      ..spaceOfMediaAssetsAfterCompress =
+          curResult.spaceOfMediaAssetsBeforeCompress - freedSpace
+      ..hasCompressed = true;
 
     return _result;
   }
@@ -169,7 +165,7 @@ class AssetCompressor {
   double compressAssets(List<String> assets) {
     double result = 0;
     for (var assetRelativePath in assets) {
-      final path = p.join(projectRoot, assetRelativePath);
+      final path = p.join(fs.projectRoot, assetRelativePath);
       if (!fs.fileExists(path)) {
         console.printWarning(
             'File not found, skipping compression: "$assetRelativePath"');

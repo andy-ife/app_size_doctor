@@ -1,9 +1,11 @@
 import 'dart:async';
+import 'dart:collection';
 import 'dart:io';
 import 'dart:isolate';
 import 'dart:math';
 
 import 'package:interact_cli/interact_cli.dart';
+import 'package:path/path.dart' as p;
 
 const String reset = '\x1B[0m';
 
@@ -264,5 +266,55 @@ class Console {
       }
     }
     return matrix;
+  }
+
+  // ===========
+  // File trees
+  // ===========
+
+  Map<String, dynamic> treePaths = {};
+
+  Map<String, dynamic> buildTree(List<String> paths) {
+    Map<String, dynamic> root = SplayTreeMap<String, dynamic>();
+    for (var path in paths) {
+      final parts = p.split(path);
+      Map<String, dynamic> currentNode = root;
+      for (var i = 0; i < parts.length; i++) {
+        final part = parts[i];
+        if (i == parts.length - 1) {
+          currentNode[part] = true;
+        } else {
+          currentNode.putIfAbsent(part, () => SplayTreeMap<String, dynamic>());
+          currentNode = currentNode[part];
+        }
+      }
+    }
+    treePaths = root;
+    return root;
+  }
+
+  void printTree({Map<String, dynamic>? paths, String? prefix}) {
+    final node = paths ?? treePaths;
+    final keys = node.keys.toList();
+    final prefix0 = prefix ?? '';
+
+    for (var i = 0; i < keys.length; i++) {
+      final key = keys[i];
+      final isLastEntry = (i == keys.length - 1);
+      final entityPrefix = isLastEntry ? '└── ' : '├── ';
+      final childPrefix = prefix0 + (isLastEntry ? '    ' : '│   ');
+      printInfo('$prefix0$entityPrefix$key');
+      if (node[key] is Map) {
+        printTree(
+          paths: node[key],
+          prefix: childPrefix,
+        );
+      }
+    }
+  }
+
+  void buildAndPrintTree(List<String> paths) {
+    buildTree(paths);
+    printTree();
   }
 }

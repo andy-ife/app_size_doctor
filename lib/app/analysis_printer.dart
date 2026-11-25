@@ -1,57 +1,49 @@
-import 'package:asset_doctor/app/models/compress_result.dart';
+import 'package:asset_doctor/app/asset_compressor.dart';
 import 'package:asset_doctor/data/file_system_client.dart';
 import 'package:asset_doctor/ui/console.dart';
-import 'package:asset_doctor/ui/extension.dart';
-import 'package:asset_doctor/ui/tree.dart';
+import 'package:asset_doctor/utils/extension.dart';
 import 'package:path/path.dart' as p;
 
 class AnalysisPrinter {
-  AnalysisPrinter(
-      {required this.usedAssets,
-      required this.pubspecAssets,
-      required this.fs,
-      String? projectRoot,
-      Console? console,
-      TreePrinter? tree})
-      : projectRoot = projectRoot ?? fs.currentDir,
-        console = console ?? Console(),
-        tree = tree ?? TreePrinter();
+  AnalysisPrinter({
+    required this.usedAssets,
+    required this.pubspecAssets,
+    required this.fs,
+    Console? console,
+  }) : console = console ?? Console();
 
   final Set<String> usedAssets;
   final List<String> pubspecAssets;
   final FileSystemClient fs;
-
-  late final String projectRoot;
-  late final Console console;
-  late final TreePrinter tree;
+  final Console console;
 
   void printCompressAnalysis(CompressResult result) {
-    console.printHeader('Asset Compression Analysis');
+    console.printHeader('Asset Usage Analysis');
 
     console.printSubHeader(
         'Potentially Used assets (Found in assets/ and path/name found as a string somewhere in the code):',
         nl: false);
-    if (result.usedAssets.isNotEmpty) {
-      console.printInfo('(${result.usedAssets.length} files)');
-      console.printMatrix(result.usedAssets);
+    if (result.assetsForCompression.isNotEmpty) {
+      console.printInfo('(${result.assetsForCompression.length} files)');
+      console.printMatrix(result.assetsForCompression.toSet());
     } else {
       console.printInfo('None found.');
     }
 
     console.printWarning(
-        '\n🔨 Assets MARKED FOR COMPRESSION (Potentiallyy Used assets only):');
+        '\n🔨 Assets MARKED FOR COMPRESSION (Potentially Used assets only):');
     if (result.assetsForCompression.isNotEmpty) {
       console.printWarning('(${result.assetsForCompression.length} files)');
-      tree.print(paths: result.assetsForCompressionTree, prefix: '');
+      console.printTree(paths: result.assetsForCompressionTree, prefix: '');
     } else {
       console.printInfo('  None found.');
     }
 
     final selectedAssets = result.assetsForCompression.toSet();
-    final totalAssets = result.usedAssets.length;
+    final totalAssets = result.allMediaAssets.length;
     final totalForCompression = selectedAssets.length;
     final totalNotSelected =
-        result.usedAssets.difference(selectedAssets).length;
+        result.allMediaAssets.difference(selectedAssets).length;
 
     console.printSubHeader('Pre-compression Summary:');
     console.printInfo(
@@ -78,7 +70,7 @@ class AnalysisPrinter {
 
   /// Summarize what cleaning and compression would free up without
   /// changing any files. Meant to be more concise than the full
-  /// [printCleanAnalysis] and [printCompressAnalysis] breakdowns.
+  /// [printCompressAnalysis] breakdown.
   void printDryRunAnalysis(CompressResult compressResult) {
     console.printHeader('Dry Run Analysis');
     console.printInfo(
@@ -159,7 +151,7 @@ class AnalysisPrinter {
   List<String> getUsedInAButNotB(Iterable<String> a, Iterable<String> b) {
     return a.where((assetPath) {
       final relativePath =
-          p.relative(assetPath, from: projectRoot).replaceAll('\\', '/');
+          p.relative(assetPath, from: fs.projectRoot).replaceAll('\\', '/');
       final dirs = p.split(relativePath);
 
       // generate all possible subdirs

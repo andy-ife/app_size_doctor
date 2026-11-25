@@ -1,11 +1,9 @@
-enum AssetDir { assets, android, ios, macos, windows, linux }
+// ignore_for_file: constant_identifier_names
 
-// ignore: constant_identifier_names
-const Map<AssetDir, List<String>> COMMON_ASSETS_LOCATIONS = {
-  AssetDir.assets: ['assets', 'fonts', 'font'],
-  AssetDir.android: ['android/app/src/main/res'],
-  AssetDir.ios: ['ios/Runner/Assets.xcassets', 'ios/Runner/Fonts'],
-  AssetDir.macos: ['macos/Runner/Assets.xcassets', 'macos/Runner/Fonts'],
-  AssetDir.windows: ['windows/runner/resources', 'windows/runner/fonts'],
-  AssetDir.linux: ['linux/runner/resources', 'linux/runner/fonts']
-};
+const ASSETS_DIR = 'assets';
+const ANDROID_ASSETS_DIR = 'android/app/src/main/res';
+const IOS_ASSETS_DIR = 'ios/Runner/Assets/xcassets';
+
+// const MACOS_ASSETS_DIR = 'macos/Runner/Assets.xcassets';
+// const WINDOWS_ASSETS_DIR = 'windows/runner/resources';
+// const LINUX_ASSETS_DIR = 'linux/runner/resources';

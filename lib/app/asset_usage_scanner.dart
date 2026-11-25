@@ -1,8 +1,8 @@
 import 'package:asset_doctor/data/file_system_client.dart';
 import 'package:asset_doctor/directories.dart';
-import 'package:asset_doctor/service/extract_pubspec_assets_service.dart';
-import 'package:asset_doctor/service/find_all_string_literals_in_file_service.dart';
-import 'package:asset_doctor/service/match_assets_and_string_literals_service.dart';
+import 'package:asset_doctor/service/android_assets_search_service.dart';
+import 'package:asset_doctor/service/assets_search_service.dart';
+import 'package:asset_doctor/service/ios_assets_search_service.dart';
 import 'package:asset_doctor/ui/console.dart';
 import 'package:path/path.dart' as p;
 
@@ -13,21 +13,28 @@ typedef AssetUsageScanResults = ({
   Set<String> usedAssets
 });
 
+typedef SearchServices = ({
+  AssetsSearchService assetService,
+  AndroidAssetsSearchService androidService,
+  IosAssetsSearchService iosService,
+});
+
 class AssetUsageScanner {
   AssetUsageScanner({
-    required this.projectRoot,
-    required this.ignoredDirs,
-    required this.pubspecPath,
-    FileSystemClient? fs,
+    required this.fs,
+    SearchServices? searchServices,
     Console? console,
-  })  : fs = fs ?? FileSystemClient(projectRoot: projectRoot),
+  })  : searchServices = searchServices ??
+            (
+              assetService: AssetsSearchService(),
+              androidService: AndroidAssetsSearchService(),
+              iosService: IosAssetsSearchService()
+            ),
         console = console ?? Console();
 
-  late final FileSystemClient fs;
-  late final Console console;
-  final String projectRoot;
-  final List<String> ignoredDirs;
-  final String pubspecPath;
+  final FileSystemClient fs;
+  final Console console;
+  final SearchServices searchServices;
 
   Future<AssetUsageScanResults> init() {
     return console.printLoading<AssetUsageScanResults>(
@@ -52,31 +59,27 @@ class AssetUsageScanner {
   }
 
   List<String> getPubspecAssets() {
-    final pubspecContent = fs.readAsString(pubspecPath);
-    return ExtractPubspecAssetsService(
-            pubspecContent: pubspecContent, projectRoot: projectRoot)
-        .run();
+    final pubspecContent = fs.readPubspec();
+    return searchServices.assetService
+        .extractPubspecAssets(pubspecContent, fs.projectRoot);
   }
 
   Set<String> getAllNormalizedLiterals() {
     return _mapAllDartFilesInProject((curFile) {
-      final literals =
-          FindAllStringLiteralsInFileService(content: fs.readAsString(curFile))
-              .run();
+      final literals = searchServices.assetService
+          .findAllStringLiteralsInFile(fs.readAsString(curFile));
       return literals;
     });
   }
 
   Set<String> getAllAssets() {
-    final assetsDirs = COMMON_ASSETS_LOCATIONS[AssetDir.assets]!;
-    return _findAllFilesInDirectories(assetsDirs);
+    return _findAllFilesInDirectories([ASSETS_DIR]);
   }
 
   Set<String> getUsedAssets(
       Set<String> allAssets, Set<String> allNormalizedLiterals) {
-    return MatchAssetsAndStringLiteralsService(
-            assetFiles: allAssets, allNormalizedLiterals: allNormalizedLiterals)
-        .run();
+    return searchServices.assetService
+        .matchAssetsAndStringLiterals(allAssets, allNormalizedLiterals);
   }
 
   // ===============
@@ -87,7 +90,7 @@ class AssetUsageScanner {
   /// Aggregate the results and return
   Set<String> _mapAllDartFilesInProject(Set<String> Function(String) mapper) {
     final result = <String>{};
-    final libDir = p.join(projectRoot, 'lib');
+    final libDir = p.join(fs.projectRoot, 'lib');
     if (fs.directoryExists(libDir)) {
       try {
         for (var entity in fs.listFilesSync(libDir)) {
@@ -104,7 +107,7 @@ class AssetUsageScanner {
       }
       return result;
     } else {
-      final msg = 'Lib directory not found at $projectRoot';
+      final msg = 'Lib directory not found at ${fs.projectRoot}';
       console.printError(msg);
       throw msg;
     }
@@ -123,7 +126,7 @@ class AssetUsageScanner {
         if (fs.isFile(entity)) {
           if (!p.basename(entity).startsWith('.')) {
             files.add(
-                p.relative(entity, from: projectRoot).replaceAll('\\', '/'));
+                p.relative(entity, from: fs.projectRoot).replaceAll('\\', '/'));
           }
         }
       } catch (e) {
@@ -153,8 +156,8 @@ class AssetUsageScanner {
 
   bool _shouldIgnore(String path) {
     final filePath = path.replaceAll('\\', '/');
-    final rootPath = projectRoot.replaceAll('\\', '/');
-    return ignoredDirs.any((dir) {
+    final rootPath = fs.projectRoot.replaceAll('\\', '/');
+    return fs.ignoredDirs.any((dir) {
       final ignoredPath = p.join(rootPath, dir).replaceAll('\\', '/');
       return filePath.contains(ignoredPath);
     });

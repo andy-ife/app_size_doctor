@@ -24,30 +24,37 @@ class Cli {
     bool dryRun = argResults['dry-run'] as bool;
     final noArgs = !compressAll && !dryRun && !requestingHelp;
 
-    console.printHeader('Media Asset Optimizer');
-
     if (noArgs) {
+      console.printHeader('Media Asset Optimizer');
       console.printInfo('Get started');
-      showTutorial();
+      int selection = 0;
       do {
-        final input = console.read();
-        switch (input?.trim()) {
-          case '1':
-            compressAll = true;
-            break;
-          case '2':
-            compressSome = true;
-            break;
-          case '3':
-            dryRun = true;
-            break;
-          case '4':
-            requestingHelp = true;
-            break;
-          default:
-            console.printError('Invalid option. Please choose 1 - 4');
-        }
-      } while (!compressAll && !compressSome && !dryRun && !requestingHelp);
+        selection = console.printSelect(message: 'Options', optionsAndHints: {
+          '1. Compress all': 'Compress all non-hidden assets in the project',
+          '2. Compress some': 'Select which assets to skip',
+          '3. Dry run': 'Estimate savings without touching anything',
+          '4. Help': 'Help'
+        });
+        selection++;
+      } while (selection < 1);
+
+      switch (selection) {
+        case 1:
+          compressAll = true;
+          break;
+        case 2:
+          compressSome = true;
+          break;
+        case 3:
+          dryRun = true;
+          break;
+        case 4:
+          requestingHelp = true;
+          break;
+        default:
+          console.printError('Invalid option. Please choose 1 - 4');
+          break;
+      }
     }
 
     if (requestingHelp) {

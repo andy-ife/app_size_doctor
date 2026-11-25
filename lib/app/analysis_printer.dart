@@ -18,7 +18,7 @@ class AnalysisPrinter {
   final Console console;
 
   void printCompressAnalysis(CompressResult result) {
-    console.printHeader('Analysis');
+    //console.printHeader('Analysis');
 
     // console.printSubHeader(
     //     'Potentially Used assets (Found in assets/ and path/name found as a string somewhere in the code):',
@@ -32,7 +32,7 @@ class AnalysisPrinter {
     final isAll =
         result.allMediaAssets.length == result.assetsForCompression.length;
     console.printWarning(
-        '🔨 Assets MARKED FOR COMPRESSION (${isAll ? 'All' : 'Selected'} assets ${isAll ? '' : 'only'}):');
+        '🔨 Assets MARKED FOR COMPRESSION (${isAll ? 'All' : 'Selected'} assets${isAll ? '' : ' only'}):');
     if (result.assetsForCompression.isNotEmpty) {
       console.printWarning('(${result.assetsForCompression.length} files)');
       console.printTree(paths: result.assetsForCompressionTree, prefix: '');
@@ -100,7 +100,7 @@ class AnalysisPrinter {
 
     final totalPotentialSavings = compressResult.potentiallySavedSpace;
     console.printSubHeader('Total Potential Savings:');
-    console.printInfo(
+    console.printSuccess(
         '• Estimated total savings: ${totalPotentialSavings.toStorageString()}');
     console.printInfo(
         '\nRun again without --dry-run to view detailed file trees and apply these changes.');

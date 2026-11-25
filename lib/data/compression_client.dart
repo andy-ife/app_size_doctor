@@ -73,8 +73,6 @@ class CompressionClient {
         return compressVideoOrAudio(path);
       case AssetType.audio:
         return compressVideoOrAudio(path);
-      case AssetType.text:
-        return null;
       case AssetType.unkown:
         return null;
     }

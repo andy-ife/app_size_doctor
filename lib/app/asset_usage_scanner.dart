@@ -3,6 +3,7 @@ import 'package:media_asset_optimizer/service/android_assets_search_service.dart
 import 'package:media_asset_optimizer/service/assets_search_service.dart';
 import 'package:media_asset_optimizer/service/ios_assets_search_service.dart';
 import 'package:media_asset_optimizer/ui/console.dart';
+import 'package:media_asset_optimizer/utils/asset_utils.dart';
 import 'package:path/path.dart' as p;
 
 // ignore_for_file: constant_identifier_names
@@ -149,6 +150,10 @@ class AssetUsageScanner {
       console.printInfo(
         '\nFound ${files.length} files in /$dir',
       );
+      final nonMedia = files.where((e) => !AssetUtils.isMedia(e));
+      if (nonMedia.isNotEmpty) {
+        console.printInfo('${nonMedia.length} are non-media files');
+      }
     }
     return files;
   }

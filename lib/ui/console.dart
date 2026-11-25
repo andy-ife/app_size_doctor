@@ -128,7 +128,7 @@ class Console {
     return result;
   }
 
-  /// Asks the user for multiple options check by using the SpaceBar.
+  /// Asks the user to select multiple options check by using spacebar to select, and enter to confirm.
   /// Returns a list of selected indexes.
   List<int> printMultiSelect(
       {required String message,
@@ -147,6 +147,42 @@ class Console {
             hintStyle: (x) => '$cyan$x$reset',
             errorStyle: (x) => '$red$x$reset',
             activeItemStyle: (x) => x,
+            inactiveItemStyle: (x) => '$light$x$reset',
+            activeItemPrefix: '$cyan>$reset',
+            checkedItemPrefix: '$cyan✔$reset',
+            uncheckedItemPrefix: ' ',
+            pickedItemPrefix: '$cyan✔$reset',
+            unpickedItemPrefix: ' '),
+      ).interact();
+    } catch (e) {
+      resetConsole();
+      rethrow;
+    }
+  }
+
+  /// Asks the user to select one out of multiple options.
+  /// [optionsAndHints] is a map of options (keys) and their respective, optional hints (values).
+  /// Hint will be shown in dim text when the associated item is hovered
+  int printSelect({
+    required String message,
+    required Map<String, String?> optionsAndHints,
+  }) {
+    String? getHint(String option) =>
+        optionsAndHints.entries.firstWhere((e) => e.key == option).value;
+
+    try {
+      print('');
+      return Select.withTheme(
+        prompt: message,
+        options: optionsAndHints.keys.toList(),
+        theme: Theme.basicTheme.copyWith(
+            inputSuffix: '',
+            successSuffix: '',
+            messageStyle: (x) => x,
+            hintStyle: (x) => '$cyan$x$reset',
+            errorStyle: (x) => '$red$x$reset',
+            activeItemStyle: (x) =>
+                '$bold$x$reset ${getHint(x) == null ? '' : '$light(${getHint(x)})$reset'}',
             inactiveItemStyle: (x) => '$light$x$reset',
             activeItemPrefix: '$cyan>$reset',
             checkedItemPrefix: '$cyan✔$reset',

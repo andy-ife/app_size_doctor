@@ -1,14 +1,18 @@
 import 'package:path/path.dart' as p;
 
-enum AssetType { image, video, audio, text, unkown }
+enum AssetType { image, video, audio, unkown }
 
 class AssetUtils {
+  static List<String> get allExtensions =>
+      imageExtensions + videoExtensions + audioExtensions;
+
   static const imageExtensions = [
     '.png',
     '.jpg',
     '.jpeg',
     '.jfif',
     '.svg',
+    '.tif',
     '.tiff',
     '.gif',
     '.webp',
@@ -31,22 +35,12 @@ class AssetUtils {
     '.wav',
   ];
 
-  static const textExtensions = [
-    '.yaml',
-    '.json',
-    '.xml',
-    '.txt',
-    '',
-  ];
-
   static bool isImage(String path) =>
       imageExtensions.contains(p.extension(path, 2));
   static bool isVideo(String path) =>
       videoExtensions.contains(p.extension(path, 2));
   static bool isAudio(String path) =>
       audioExtensions.contains(p.extension(path, 2));
-  static bool isText(String path) =>
-      textExtensions.contains(p.extension(path, 2));
   static bool isMedia(String path) =>
       isImage(path) || isVideo(path) || isAudio(path);
 
@@ -56,7 +50,5 @@ class AssetUtils {
           ? AssetType.video
           : isAudio(path)
               ? AssetType.audio
-              : isText(path)
-                  ? AssetType.text
-                  : AssetType.unkown;
+              : AssetType.unkown;
 }

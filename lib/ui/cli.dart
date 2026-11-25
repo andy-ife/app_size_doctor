@@ -1,7 +1,7 @@
 import 'package:args/args.dart';
 import 'package:asset_doctor/ui/console.dart';
 
-enum CliMode { fullRun, cleanOnly, compressOnly, dryRun, none }
+enum CliMode { compress, dryRun, none }
 
 const PADDING = 32;
 
@@ -13,19 +13,14 @@ class Cli {
   CliMode start(List<String> arguments) {
     final parser = ArgParser()
       ..addFlag('help', abbr: 'h', defaultsTo: false)
-      ..addFlag('full-run', abbr: 'f', defaultsTo: false)
-      ..addFlag('clean-only', abbr: 'c', defaultsTo: false)
-      ..addFlag('compress-only', abbr: 'x', defaultsTo: false)
+      ..addFlag('compress', abbr: 'x', defaultsTo: false)
       ..addFlag('dry-run', abbr: 'd', defaultsTo: false);
 
     ArgResults argResults = parser.parse(arguments);
     bool requestingHelp = argResults['help'] as bool;
-    bool cleanOnly = argResults['clean-only'] as bool;
-    bool compressOnly = argResults['compress-only'] as bool;
-    bool fullRun = argResults['full-run'] as bool;
+    bool compress = argResults['compress'] as bool;
     bool dryRun = argResults['dry-run'] as bool;
-    final noArgs =
-        !cleanOnly && !compressOnly && !fullRun && !dryRun && !requestingHelp;
+    final noArgs = !compress && !dryRun && !requestingHelp;
 
     console.printHeader('Asset Doctor');
 
@@ -36,28 +31,18 @@ class Cli {
         final input = console.read();
         switch (input?.trim()) {
           case '1':
-            fullRun = true;
+            compress = true;
             break;
           case '2':
-            cleanOnly = true;
-            break;
-          case '3':
-            compressOnly = true;
-            break;
-          case '4':
             dryRun = true;
             break;
-          case '5':
+          case '3':
             requestingHelp = true;
             break;
           default:
             console.printError('Invalid option. Please choose 1 - 4');
         }
-      } while (!fullRun &&
-          !cleanOnly &&
-          !compressOnly &&
-          !dryRun &&
-          !requestingHelp);
+      } while (!compress && !dryRun && !requestingHelp);
     }
 
     if (requestingHelp) {
@@ -65,16 +50,8 @@ class Cli {
       return CliMode.none;
     }
 
-    if (fullRun) {
-      return CliMode.fullRun;
-    }
-
-    if (cleanOnly) {
-      return CliMode.cleanOnly;
-    }
-
-    if (compressOnly) {
-      return CliMode.compressOnly;
+    if (compress) {
+      return CliMode.compress;
     }
 
     if (dryRun) {
@@ -86,14 +63,10 @@ class Cli {
 
   void showHelp() {
     console.printHeader("Help");
-    console.printInfo(
-        'Remove (clean) unused assets and compress the ones you use. You can choose clean, compress, or both');
+    console.printInfo('Optimize your project\'s assets');
     console.printInfo("\nMain command:");
     console.printHint('`dart run asset_doctor`\n');
     console.printInfo('Flags (optional):');
-    console.printInfo(
-        '${'-f, --full-run'.padRight(PADDING)}Full run (clean & compress)');
-    console.printInfo('${'-c, --clean-only'.padRight(PADDING)}Clean only');
     console
         .printInfo('${'-x, --compress-only'.padRight(PADDING)}Compress only');
     console.printInfo(
@@ -103,11 +76,9 @@ class Cli {
 
   void showTutorial() {
     console.printInfo('\nOptions:');
-    console.printInfo('1. Full run (clean & compress)');
-    console.printInfo('2. Clean only');
-    console.printInfo('3. Compress only');
-    console.printInfo('4. Dry run');
-    console.printInfo('5. Help');
-    console.printInputPrompt('Choose one (1-5): ');
+    console.printInfo('1. Compress');
+    console.printInfo('2. Dry run');
+    console.printInfo('3. Help');
+    console.printInputPrompt('Choose one (1-3): ');
   }
 }

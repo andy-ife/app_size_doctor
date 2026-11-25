@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'package:asset_doctor/app/analysis_printer.dart';
-import 'package:asset_doctor/app/asset_cleaner.dart';
 import 'package:asset_doctor/app/asset_compressor.dart';
 import 'package:asset_doctor/asset_doctor.dart';
 import 'package:asset_doctor/app/asset_usage_scanner.dart';
@@ -60,10 +59,6 @@ class App {
     // Start
     final assetDoctor = AssetDoctor(
         cliMode: cliMode,
-        assetCleaner: AssetCleaner(
-            allAssets: initialData.allAssets,
-            usedAssets: initialData.usedAssets,
-            fs: scanner.fs),
         assetCompressor:
             AssetCompressor(usedAssets: initialData.usedAssets, fs: scanner.fs),
         analysisPrinter: AnalysisPrinter(

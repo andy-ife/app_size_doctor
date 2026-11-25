@@ -1,4 +1,3 @@
-import 'package:asset_doctor/app/models/clean_result.dart';
 import 'package:asset_doctor/app/models/compress_result.dart';
 import 'package:asset_doctor/data/file_system_client.dart';
 import 'package:asset_doctor/ui/console.dart';
@@ -25,80 +24,6 @@ class AnalysisPrinter {
   late final String projectRoot;
   late final Console console;
   late final TreePrinter tree;
-
-  void printCleanAnalysis(CleanResult result) {
-    console.printHeader('Asset Usage Analysis');
-
-    console.printSubHeader(
-        'Potentially Used assets (Their path/name was found as a string literal somewhere in the code):',
-        nl: false);
-    if (result.usedAssets.isNotEmpty) {
-      console.printInfo('(${result.usedAssets.length} files)');
-      console.printMatrix(result.usedAssets);
-    } else {
-      console.printInfo('None found.');
-    }
-
-    console.printSubHeader(
-      'Excluded assets (e.g unused JSON files):',
-    );
-    if (result.excludedTree.isNotEmpty) {
-      tree.print(paths: result.excludedTree, prefix: '');
-    } else {
-      console.printInfo('None found.');
-    }
-
-    console.printWarning('\n🗑️  Unused assets MARKED FOR DELETION:');
-    int totalUnusedForDeletion = countFilesInTree(result.unusedTree);
-    if (totalUnusedForDeletion > 0) {
-      console.printWarning('($totalUnusedForDeletion files)');
-      tree.print(
-        paths: result.unusedTree,
-        prefix: '',
-      );
-    } else {
-      console.printInfo('  None found');
-    }
-
-    final totalAssetsInDir = result.allAssets.length;
-    final totalUsedAssets = result.usedAssets.length;
-    int totalLocalizationExcluded = countFilesInTree(result.excludedTree);
-    final totalUnused = totalUnusedForDeletion + totalLocalizationExcluded;
-    console.printSubHeader('Pre-deletion Summary:');
-
-    console.printInfo(
-      '• Total assets (excluding hidden): ${totalAssetsInDir.toString()}',
-    );
-
-    console.printInfo(
-      '• Potentially Used assets: ${totalUsedAssets.toString()}',
-    );
-
-    console.printInfo(
-      '• Unused assets (Total): ${totalUnused.toString()}',
-    );
-
-    console.printInfo(
-      '  - Excluded (e.g., unused JSON): ${totalLocalizationExcluded.toString()}',
-    );
-
-    console.printInfo(
-      '  - Marked for deletion: ${totalUnusedForDeletion.toString()}',
-    );
-
-    if (totalAssetsInDir > 0) {
-      console.printInfo(
-        '• Percentage used: ${((totalUsedAssets / totalAssetsInDir) * 100).toStringAsFixed(1)}%',
-      );
-
-      console.printInfo(
-        '• Percentage unused (for deletion): ${((totalUnusedForDeletion / totalAssetsInDir) * 100).toStringAsFixed(1)}%',
-      );
-    }
-
-    console.printWarning(
-        '\n• Potential space saved: ${result.potentiallySavedSpace.toStorageString()}');
-  }
 
   void printCompressAnalysis(CompressResult result) {
     console.printHeader('Asset Compression Analysis');
@@ -154,47 +79,19 @@ class AnalysisPrinter {
   /// Summarize what cleaning and compression would free up without
   /// changing any files. Meant to be more concise than the full
   /// [printCleanAnalysis] and [printCompressAnalysis] breakdowns.
-  void printDryRunAnalysis(
-      CleanResult cleanResult, CompressResult compressResult) {
+  void printDryRunAnalysis(CompressResult compressResult) {
     console.printHeader('Dry Run Analysis');
     console.printInfo(
         'No files were changed. Here is what Asset Doctor could free up:');
 
-    final totalForDeletion = cleanResult.unusedAssetsForDeletion.length;
-    final totalExcluded = countFilesInTree(cleanResult.excludedTree);
     final totalForCompression = compressResult.assetsForCompression.length;
 
-    if (totalForDeletion == 0 && totalForCompression == 0) {
-      if (totalExcluded > 0) {
-        console.printSuccess('\n✨ Nothing to delete or compress.');
-        console.printInfo(
-          '• Unused but excluded from deletion (e.g., non-empty JSON): ${totalExcluded.toString()} ',
-        );
-      } else {
-        console.printSuccess(
-            '\n✨ Nothing to delete or compress. Your project is already lean.');
-      }
+    if (totalForCompression == 0) {
+      console.printSuccess(
+          '\n✨ Nothing to  compress. Your project is already lean.');
       return;
     }
 
-    console.printSubHeader('🗑️  Cleaning');
-    if (totalForDeletion == 0) {
-      console.printInfo('  Nothing to delete.');
-    } else {
-      console.printInfo(
-        '• Assets marked for deletion: ${totalForDeletion.toString()}',
-      );
-      console.printInfo(
-        '• Potential savings: ${cleanResult.potentiallySavedSpace.toStorageString()}',
-      );
-    }
-    if (totalExcluded > 0) {
-      console.printInfo(
-        '• Excluded (e.g., non-empty JSON): ${totalExcluded.toString()}',
-      );
-    }
-
-    console.printSubHeader('🔨 Compression');
     if (totalForCompression == 0) {
       console.printInfo('  Nothing to compress.');
     } else {
@@ -209,8 +106,7 @@ class AnalysisPrinter {
       );
     }
 
-    final totalPotentialSavings = cleanResult.potentiallySavedSpace +
-        compressResult.potentiallySavedSpace;
+    final totalPotentialSavings = compressResult.potentiallySavedSpace;
     console.printSubHeader('Total Potential Savings:');
     console.printInfo(
         '• Estimated total savings: ${totalPotentialSavings.toStorageString()}');
@@ -295,23 +191,10 @@ class AnalysisPrinter {
     return count;
   }
 
-  void printWorkSummary(
-      CleanResult? cleanResult, CompressResult? compressResult) {
-    final hasCleaned = cleanResult != null &&
-        cleanResult.hasCleaned &&
-        cleanResult.spaceOfUnusedAssetsAfterClean != null;
+  void printWorkSummary(CompressResult? compressResult) {
     final hasCompressed = compressResult != null &&
         compressResult.hasCompressed &&
         compressResult.spaceOfMediaAssetsAfterCompress != null;
-
-    if (hasCleaned) {
-      console.printSuccess(
-          "\nSpace taken by unused assets before: ${cleanResult.spaceOfUnusedAssetsBeforeClean.to1dp.toStorageString()}");
-      console.printSuccess(
-          "After cleaning: ${cleanResult.spaceOfUnusedAssetsAfterClean!.to1dp.toStorageString()}");
-      console.printSuccess(
-          "Saved: ${(cleanResult.spaceOfUnusedAssetsBeforeClean - cleanResult.spaceOfUnusedAssetsAfterClean!).to1dp.toStorageString()}");
-    }
 
     if (hasCompressed) {
       console.printSuccess(
@@ -320,16 +203,6 @@ class AnalysisPrinter {
           'After compression: ${compressResult.spaceOfMediaAssetsAfterCompress!.to1dp.toStorageString()}');
       console.printSuccess(
           'Saved: ${(compressResult.spaceOfMediaAssetsBeforeCompress - compressResult.spaceOfMediaAssetsAfterCompress!).to1dp.toStorageString()}');
-    }
-
-    if (hasCleaned && hasCompressed) {
-      final totalFreed = (cleanResult.spaceOfUnusedAssetsBeforeClean -
-              cleanResult.spaceOfUnusedAssetsAfterClean!) +
-          (compressResult.spaceOfMediaAssetsBeforeCompress -
-              compressResult.spaceOfMediaAssetsAfterCompress!);
-
-      console
-          .printSuccess('\nTotal space freed: ${totalFreed.toStorageString()}');
     }
   }
 }

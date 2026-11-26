@@ -39,3 +39,4 @@
  - In a sequence of functions where each depends on the last, what happens when a previous one fails?
  - Are all possible return types/outputs handled?
 33. Add lib/src directory
+34. Wrap all app operations in app.dart in a try catch

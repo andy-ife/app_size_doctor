@@ -12,7 +12,9 @@ class CompressionClient {
   CompressionClient({FileSystemClient? fs, this.quality}) {
     this.fs = fs ?? FileSystemClient();
     if (this.fs.isWindows) {
-      mft = MfTranscoder();
+      mft = MfTranscoder(
+          dllPath: p.join(
+              this.fs.projectRoot, 'native_libs/windows/mf_transcoder.dll'));
     } else if (this.fs.isMacOS) {
       avt = AvTranscoder(
           dllPath: p.join(

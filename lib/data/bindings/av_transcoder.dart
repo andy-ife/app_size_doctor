@@ -20,14 +20,9 @@ class AvTranscoder {
   /// AVFoundation
   ///
   /// Native OS-level transcoding for macOS
-  AvTranscoder({String? dllPath})
-      : _lib = DynamicLibrary.open(
-            dllPath ?? 'native_libs/macOS/av_transcoder.dylib') {
-    _transcoder = _lib.lookupFunction<AvTranscoderNative, AvTranscoderDart>(
-        'av_transcode_to_h264_mp3');
-  }
-  final DynamicLibrary _lib;
-  late final AvTranscoderDart _transcoder;
+  AvTranscoder({this.dllPath});
+
+  final String? dllPath;
 
   /// Write the output to a temp file
   /// Do not pass the same path as inputPath and outputPath
@@ -38,12 +33,17 @@ class AvTranscoder {
     assert(inputPath != outputPath,
         'Do not pass the same path as inputPath and outputPath');
 
+    final lib =
+        DynamicLibrary.open(dllPath ?? 'native_libs/macOS/av_transcoder.dylib');
+    final transcoder = lib.lookupFunction<AvTranscoderNative, AvTranscoderDart>(
+        'av_transcode_to_h264_mp3');
+
     final inputPtr = inputPath.toNativeUtf8();
     final outputPtr = outputPath.toNativeUtf8();
     final hrPtr = calloc<Int32>();
 
     try {
-      final status = _transcoder(inputPtr, outputPtr, quality, hrPtr);
+      final status = transcoder(inputPtr, outputPtr, quality, hrPtr);
       return (status: status, hresult: hrPtr.value);
     } finally {
       malloc.free(inputPtr);

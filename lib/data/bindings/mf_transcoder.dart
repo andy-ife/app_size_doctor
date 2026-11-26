@@ -20,16 +20,9 @@ class MfTranscoder {
   /// MediaFoundation
   ///
   /// Native OS-level transcoding for Windows
-  MfTranscoder({String? dllPath})
-      : _lib = DynamicLibrary.open(
-            dllPath ?? 'native_libs/windows/mf_transcode.dll') {
-    _transcoder = _lib.lookupFunction<MfTranscoderNative, MfTranscoderDart>(
-      'mf_transcode_to_h264_mp3',
-    );
-  }
+  MfTranscoder({this.dllPath});
 
-  final DynamicLibrary _lib;
-  late final MfTranscoderDart _transcoder;
+  final String? dllPath;
 
   /// Write the output to a temp file.
   /// Do not pass the same path as inputPath and outputPath
@@ -41,12 +34,18 @@ class MfTranscoder {
     assert(inputPath != outputPath,
         'Do not pass the same path as inputPath and outputPath');
 
+    final lib =
+        DynamicLibrary.open(dllPath ?? 'native_libs/windows/mf_transcode.dll');
+
+    final transcoder = lib.lookupFunction<MfTranscoderNative, MfTranscoderDart>(
+        'mf_transcode_to_h264_mp3');
+
     final inputPtr = inputPath.toNativeUtf8();
     final outputPtr = outputPath.toNativeUtf8();
     final hrPtr = calloc<Int32>();
 
     try {
-      final status = _transcoder(inputPtr, outputPtr, quality, hrPtr);
+      final status = transcoder(inputPtr, outputPtr, quality, hrPtr);
       return (status: status, hresult: hrPtr.value);
     } finally {
       malloc.free(inputPtr);

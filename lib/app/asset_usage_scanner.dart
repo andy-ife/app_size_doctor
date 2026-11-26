@@ -40,15 +40,15 @@ class AssetUsageScanner {
   }
 
   Set<String> getFlutterAssets() {
-    return findAllFilesInDirectory(ASSETS_DIR);
+    return findAllFilesInDirectory(p.join(fs.projectRoot, ASSETS_DIR));
   }
 
   Set<String> getAndroidAssets() {
-    return findAllFilesInDirectory(ANDROID_ASSETS_DIR);
+    return findAllFilesInDirectory(p.join(fs.projectRoot, ANDROID_ASSETS_DIR));
   }
 
   Set<String> getIosAssets() {
-    return findAllFilesInDirectory(IOS_ASSETS_DIR);
+    return findAllFilesInDirectory(p.join(fs.projectRoot, IOS_ASSETS_DIR));
   }
 
   Set<String> getPubspecAssets() {

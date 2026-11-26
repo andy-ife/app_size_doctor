@@ -13,17 +13,6 @@ class AnalysisPrinter {
   final Console console;
 
   void printCompressAnalysis(CompressResult result) {
-    //console.printHeader('Analysis');
-
-    // console.printSubHeader(
-    //     'Potentially Used assets (Found in assets/ and path/name found as a string somewhere in the code):',
-    //     nl: false);
-    // if (result.assetsForCompression.isNotEmpty) {
-    //   console.printInfo('(${result.assetsForCompression.length} files)');
-    //   console.printMatrix(result.assetsForCompression.toSet());
-    // } else {
-    //   console.printInfo('None found.');
-    // }
     final isAll =
         result.allMediaAssets.length == result.assetsForCompression.length;
     console.printWarning(
@@ -48,6 +37,10 @@ class AnalysisPrinter {
 
     console.printInfo(
       '• Assets marked for compression: ${totalForCompression.toString()}',
+    );
+
+    console.printInfo(
+      '• Total media assets size: ${result.spaceOfMediaAssetsBeforeCompress.toStorageString()}',
     );
 
     console.printInfo(

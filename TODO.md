@@ -24,7 +24,7 @@
 22. Don't be too quick to delete files. Consider adding used, unused, and indefinite/unclear states. Lean towards keeping unclear/indefinite files
 23. Move away from interact_cli dependency. Implement our own custom list selector
 
-24. Add support for Android, iOS asset folders
+24. ~~Add support for Android, iOS asset folders~~
 25. Build the dynamic C libraries for Windows and macOS
 26. Write tests and setup CI
 27. Add LICENSE

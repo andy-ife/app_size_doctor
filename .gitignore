@@ -31,3 +31,4 @@ linux/runner/fonts/
 
 # Script for restoring my test assets during dev
 restore_test_assets.sh
+restore_test_assets.bat

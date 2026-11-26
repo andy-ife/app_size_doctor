@@ -1,1 +1,0 @@
-copy "C:\\Users\HP\FlutterProjects\test_assets\*" "C:\\Users\HP\FlutterProjects\media_asset_optimizer\assets"

@@ -87,9 +87,14 @@ class CompressionClient {
       }
 
       final outputLength = fs.lengthSync(tempPath);
-      final outputBytes = fs.readAsBytes(tempPath);
-      fs.writeAsBytes(path, outputBytes);
-      return (inputLength - outputLength).toDouble();
+      if (outputLength < inputLength) {
+        final outputBytes = fs.readAsBytes(tempPath);
+        fs.writeAsBytes(path, outputBytes);
+        return (inputLength - outputLength).toDouble();
+      } else {
+        // untouched
+        return 0;
+      }
     } on Exception catch (e) {
       throw getTranscoderException(e, null, fs);
     } finally {

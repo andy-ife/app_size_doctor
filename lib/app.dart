@@ -6,7 +6,6 @@ import 'package:media_asset_optimizer/media_asset_optimizer.dart';
 import 'package:media_asset_optimizer/data/file_system_client.dart';
 import 'package:media_asset_optimizer/ui/cli.dart';
 import 'package:media_asset_optimizer/ui/console.dart';
-import 'package:path/path.dart' as p;
 
 const test_asset_reference2 = 'test_pic2.jpg';
 const test_asset_reference3 = 'test_vid1.mp4';
@@ -22,8 +21,10 @@ const test_asset_ref12 = 'test_pic7.avif';
 const test_asset_ref13 = 'test_vid2.webm';
 
 class App {
+  static final console = Console();
+
   static void cleanup() async {
-    Console().resetConsole();
+    console.resetConsole();
   }
 
   static void start(List<String> args) async {
@@ -40,15 +41,15 @@ class App {
     }
 
     // App
-    final projectRoot = Directory.current.path;
     final ignoredDirs = ['test', 'build'];
-    final pubspecPath = p.join(projectRoot, 'pubspec.yaml');
 
     final fs = FileSystemClient(
-      projectRoot: projectRoot,
       ignoredDirs: ignoredDirs,
-      pubspecPath: pubspecPath,
     );
+
+    if (fs.projectRoot != Directory.current.path) {
+      console.printInfo('Changed project root to: ${fs.projectRoot}');
+    }
 
     final scanner = AssetUsageScanner(fs: fs);
 
@@ -65,6 +66,11 @@ class App {
       allAssets = {};
     } else {
       allAssets = await scanner.getAllAssets();
+    }
+
+    if (allAssets.isEmpty && cliMode != CliMode.compressFile) {
+      console.printInfo('\nNo assets found in the project. Exiting.');
+      exit(0);
     }
 
     // Start

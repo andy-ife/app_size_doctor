@@ -13,6 +13,7 @@ pubspec.lock
 *.cpp
 *.mm
 CMakeLists.txt
+build/
 
 # Test folders for development
 assets/

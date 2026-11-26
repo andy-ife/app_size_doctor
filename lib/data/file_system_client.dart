@@ -5,14 +5,32 @@ import 'package:path/path.dart' as p;
 /// Simple wrapper around dart:io
 /// Contains information about the current project and directories
 class FileSystemClient {
-  FileSystemClient(
-      {String? projectRoot, String? pubspecPath, List<String>? ignoredDirs})
-      : projectRoot = projectRoot ?? Directory.current.absolute.path,
-        pubspecPath = pubspecPath ?? p.join(projectRoot!, 'pubspec.yaml'),
-        ignoredDirs = ignoredDirs ?? ['test', 'build'];
-  final String projectRoot;
-  final String pubspecPath;
+  FileSystemClient({List<String>? ignoredDirs})
+      : ignoredDirs = ignoredDirs ?? ['test', 'build'] {
+    _findProjectRoot();
+  }
+
+  late final String projectRoot;
+  late final String pubspecPath;
+
   final List<String> ignoredDirs; // folders to ignore during code search
+
+  void _findProjectRoot() {
+    var dir = Directory.current;
+    while (true) {
+      final pubspecFile = File(p.join(dir.path, 'pubspec.yaml'));
+      if (pubspecFile.existsSync()) {
+        projectRoot = dir.path;
+        pubspecPath = pubspecFile.path;
+        return;
+      }
+      final parentDir = dir.parent;
+      if (parentDir.path == dir.path) {
+        throw Exception('Could not find project root with pubspec.yaml');
+      }
+      dir = parentDir;
+    }
+  }
 
   // ===========
   // Process

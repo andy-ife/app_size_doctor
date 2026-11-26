@@ -14,7 +14,9 @@ class CompressionClient {
     if (this.fs.isWindows) {
       mft = MfTranscoder();
     } else if (this.fs.isMacOS) {
-      avt = AvTranscoder();
+      avt = AvTranscoder(
+          dllPath: p.join(
+              this.fs.projectRoot, 'native_libs/macOS/av_transcoder.dylib'));
     } else if (this.fs.isLinux) {
       fft = FfmpegTranscoder();
     } else {

@@ -40,3 +40,4 @@
  - Are all possible return types/outputs handled?
 33. Add lib/src directory
 34. Wrap all app operations in app.dart in a try catch
+35. Keep the original media if compression fails (i.e new size is not smaller)

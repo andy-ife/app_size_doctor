@@ -16,16 +16,16 @@ extern "C"
 
   typedef enum AvTranscodeStatus
   {
-    AV_TRANSCODE_OK = 0,
-    AV_TRANSCODE_ERR_INVALID_ARG = 1,
-    AV_TRANSCODE_ERR_UTF8_CONVERT = 2,
+    AV_TRANSCODER_OK = 0,
+    AV_TRANSCODER_ERR_INVALID_ARG = 1,
+    AV_TRANSCODER_ERR_UTF8_CONVERT = 2,
     AV_TRANSCODER_ERR_ASSET_LOAD = 3,
     AV_TRANSCODER_ERR_READER_INIT = 4,
-    AV_TRANSCODE_ERR_WRITER_INIT = 5,
+    AV_TRANSCODER_ERR_WRITER_INIT = 5,
     AV_TRANSCODER_ERR_STREAM_SETUP = 6,
-    AV_TRANSCODE_ERR_PIPELINE = 7,
-    AV_TRANSCODE_ERR_UNSUPPORTED_AUDIO_ONLY = 8,
-    AV_TRANSCODE_ERR_UNSUPPORTED_CONTAINER = 9
+    AV_TRANSCODER_ERR_PIPELINE = 7,
+    AV_TRANSCODER_ERR_UNSUPPORTED_AUDIO_ONLY = 8,
+    AV_TRANSCODER_ERR_UNSUPPORTED_CONTAINER = 9
   } AvTranscodeStatus;
 
   /**
@@ -37,7 +37,7 @@ extern "C"
    * @param output_path_utf8  Null-terminated UTF-8 path for the output media file.
    * @param quality     Quality level in [1..100] (defaults to 85 if 0).
    * @param out_os_status     Optional pointer to receive an OSStatus / error code.
-   * @return                  AV_TRANSCODE_OK (0) on success, non-zero otherwise.
+   * @return                  AV_TRANSCODER_OK (0) on success, non-zero otherwise.
    */
   AV_TRANSCODER_API int32_t av_transcode_to_h264_mp3(
       const char *input_path_utf8,

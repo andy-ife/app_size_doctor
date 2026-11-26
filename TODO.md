@@ -32,3 +32,10 @@
 29. Create example app
 30. Add file exceptions
 31. Test and add/remove more file extensions
+32. Harden program:
+ - What if the required inputs are missing, null, or in an invalid format?
+ - What if the optional inputs are actually absent?
+ - What happens during asynchronous exceptions?
+ - In a sequence of functions where each depends on the last, what happens when a previous one fails?
+ - Are all possible return types/outputs handled?
+33. Add lib/src directory

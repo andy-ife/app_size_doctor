@@ -13,11 +13,7 @@ dependencies:
   # Image
   image_compression: ^1.0.5
 
-  collection: ^1.19.1
-
-  # TODO: Implement custom multi select list and remove this dependency
-  # We are using it ONLY for the multi select list
-  # Everything else the package comes with is not useful to this project and causes bloat
+  # TODO: Implement custom single & multi select lists and remove this dependency
   interact_cli: ^2.4.0
   ffi: ^2.2.0
 

@@ -2,7 +2,6 @@ import 'package:media_asset_optimizer/app/asset_compressor.dart';
 import 'package:media_asset_optimizer/data/file_system_client.dart';
 import 'package:media_asset_optimizer/ui/console.dart';
 import 'package:media_asset_optimizer/utils/extension.dart';
-import 'package:path/path.dart' as p;
 
 class AnalysisPrinter {
   AnalysisPrinter({
@@ -100,31 +99,6 @@ class AnalysisPrinter {
         '• Estimated total savings: ${totalPotentialSavings.toStorageString()}');
     console.printInfo(
         '\nRun again without --dry-run to view detailed file trees and apply these changes.');
-  }
-
-  /// Get folders referenced in a but not in b
-  /// Handles sub folders, partial path
-  List<String> getUsedInAButNotB(Iterable<String> a, Iterable<String> b) {
-    return a.where((assetPath) {
-      final relativePath =
-          p.relative(assetPath, from: fs.projectRoot).replaceAll('\\', '/');
-      final dirs = p.split(relativePath);
-
-      // generate all possible subdirs
-      final subdirs = <String>{};
-      for (var i = 0; i < dirs.length; i++) {
-        for (var j = i; j < dirs.length; j++) {
-          if (j == i) {
-            subdirs.add(dirs[j]);
-          } else {
-            subdirs.add('/${dirs.sublist(i, j).join('/')}');
-          }
-        }
-      }
-      // check if any of the subdirs are contained in pubspec
-      return subdirs
-          .every((subdir) => !b.any((bPath) => bPath.contains(subdir)));
-    }).toList();
   }
 
   int countFilesInTree(Map<String, dynamic> node) {

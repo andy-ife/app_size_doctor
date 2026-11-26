@@ -6,14 +6,10 @@ import 'package:path/path.dart' as p;
 
 class AnalysisPrinter {
   AnalysisPrinter({
-    required this.usedAssets,
-    required this.pubspecAssets,
     required this.fs,
     Console? console,
   }) : console = console ?? Console();
 
-  final Set<String> usedAssets;
-  final List<String> pubspecAssets;
   final FileSystemClient fs;
   final Console console;
 
@@ -104,46 +100,6 @@ class AnalysisPrinter {
         '• Estimated total savings: ${totalPotentialSavings.toStorageString()}');
     console.printInfo(
         '\nRun again without --dry-run to view detailed file trees and apply these changes.');
-  }
-
-  void printPubspecAnalysis() {
-    console.printInfo('\nChecking pubspec.yaml for any skipped assets...');
-
-    final declaredAssetsInPubspec =
-        pubspecAssets.where((e) => fs.isFile(e) || fs.isDirectory(e));
-
-    if (declaredAssetsInPubspec.isNotEmpty) {
-      final unusedDeclaredAssets =
-          getUsedInAButNotB(declaredAssetsInPubspec, usedAssets)..sort();
-      console.printHeader('pubspec.yaml Analysis');
-      console.printInfo(
-          'Found ${declaredAssetsInPubspec.length} assets declared in pubspec.yaml');
-      if (unusedDeclaredAssets.isNotEmpty) {
-        console.printSubHeader(
-          '${unusedDeclaredAssets.length} declared assets were found in the assets section but not referenced in code:',
-        );
-        for (var asset in unusedDeclaredAssets) {
-          console.printInfo('• $asset');
-        }
-      } else {
-        console.printInfo(
-            'All declared assets in pubspec.yaml seem to be referenced.');
-      }
-      final undeclaredUsedAssets =
-          getUsedInAButNotB(usedAssets, declaredAssetsInPubspec)..sort();
-      if (undeclaredUsedAssets.isNotEmpty) {
-        console.printSubHeader(
-            '${undeclaredUsedAssets.length} files in assets/ were used but *not* declared in pubspec.yaml:');
-        for (var asset in undeclaredUsedAssets) {
-          console.printInfo('• $asset');
-        }
-        console.printInfo(
-            '\nTip: Consider declaring used assets in pubspec.yaml under the `assets:` section.');
-      }
-      console.printDivider();
-    } else {
-      console.printInfo('None found');
-    }
   }
 
   /// Get folders referenced in a but not in b

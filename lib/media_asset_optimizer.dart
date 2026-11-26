@@ -26,7 +26,6 @@ class MediaAssetOptimizer {
           if (result == null) return;
 
           if (result.hasCompressed) {
-            analysisPrinter.printPubspecAnalysis();
             analysisPrinter.printWorkSummary(result);
           }
           break;
@@ -46,7 +45,6 @@ class MediaAssetOptimizer {
       case CliMode.dryRun:
         {
           await dryRun();
-          // analysisPrinter.printPubspecAnalysis();
           break;
         }
       case CliMode.none:
@@ -66,7 +64,7 @@ class MediaAssetOptimizer {
     final compress0 = assetCompressor.analyze();
     analysisPrinter.printCompressAnalysis(compress0);
 
-    final compress1 = await assetCompressor.compress(
+    final compress1 = await assetCompressor.compressMultiple(
         selectAssetsToIgnore: selectAssetsToIgnore);
     return compress1;
   }

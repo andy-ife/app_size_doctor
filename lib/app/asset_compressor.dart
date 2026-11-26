@@ -29,7 +29,6 @@ class CompressResult {
 class AssetCompressor {
   AssetCompressor({
     required this.allAssets,
-    required this.usedAssets,
     required this.fs,
     this.quality,
     CompressionClient? client,
@@ -39,7 +38,6 @@ class AssetCompressor {
   }
 
   final Set<String> allAssets;
-  final Set<String> usedAssets;
   final FileSystemClient fs;
 
   /// File quality from 1 (smallest file) to 100 (best quality).
@@ -126,7 +124,7 @@ class AssetCompressor {
     _result = result;
 
     console.printInfo('\nCompressing single asset: $relativePath');
-    final freedSpace = compressAssets([relativePath]);
+    final freedSpace = _compress([relativePath]);
 
     _result = result
       ..spaceOfMediaAssetsAfterCompress =
@@ -149,7 +147,8 @@ class AssetCompressor {
     return p.relative(absolutePath, from: fs.projectRoot).replaceAll('\\', '/');
   }
 
-  Future<CompressResult?> compress({bool selectAssetsToIgnore = false}) async {
+  Future<CompressResult?> compressMultiple(
+      {bool selectAssetsToIgnore = false}) async {
     if (_result == null || _result?.hasAnalyzed == false) {
       console.printError('Run analysis before compression');
       return null;
@@ -198,7 +197,7 @@ class AssetCompressor {
             message:
                 'Compressing ${curResult.assetsForCompression.length} asset(s)',
             work: () {
-              final justFreed = compressAssets(curResult.assetsForCompression);
+              final justFreed = _compress(curResult.assetsForCompression);
               if (justFreed > 0) {
                 console.printSuccess(
                     '\n✨ You have freed up ${justFreed.toStorageString()} of space.');
@@ -226,7 +225,7 @@ class AssetCompressor {
     return _result;
   }
 
-  double compressAssets(List<String> assets) {
+  double _compress(List<String> assets) {
     double result = 0;
     for (var assetRelativePath in assets) {
       final path = p.join(fs.projectRoot, assetRelativePath);

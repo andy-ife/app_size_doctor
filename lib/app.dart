@@ -59,17 +59,12 @@ class App {
       exit(0);
     }
 
-    final AssetUsageScanResults initialData;
+    final Set<String> allAssets;
     if (cliMode == CliMode.compressFile) {
       // A single file does not need the whole project scanned.
-      initialData = (
-        pubspecAssets: <String>[],
-        allNormalizedLiterals: <String>{},
-        allAssets: <String>{},
-        usedAssets: <String>{},
-      );
+      allAssets = {};
     } else {
-      initialData = await scanner.init();
+      allAssets = await scanner.getAllAssets();
     }
 
     // Start
@@ -77,14 +72,11 @@ class App {
         cliMode: cliMode,
         singleFile: cli.singleFile,
         assetCompressor: AssetCompressor(
-          allAssets: initialData.allAssets,
-          usedAssets: initialData.usedAssets,
+          allAssets: allAssets,
           fs: scanner.fs,
           quality: cli.quality,
         ),
         analysisPrinter: AnalysisPrinter(
-          usedAssets: initialData.usedAssets,
-          pubspecAssets: initialData.pubspecAssets,
           fs: scanner.fs,
         ));
 

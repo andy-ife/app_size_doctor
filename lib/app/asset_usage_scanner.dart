@@ -1,7 +1,4 @@
 import 'package:media_asset_optimizer/data/file_system_client.dart';
-import 'package:media_asset_optimizer/service/android_assets_search_service.dart';
-import 'package:media_asset_optimizer/service/assets_search_service.dart';
-import 'package:media_asset_optimizer/service/ios_assets_search_service.dart';
 import 'package:media_asset_optimizer/ui/console.dart';
 import 'package:media_asset_optimizer/utils/asset_utils.dart';
 import 'package:path/path.dart' as p;
@@ -16,122 +13,98 @@ const IOS_ASSETS_DIR = 'ios/Runner/Assets/xcassets';
 // const WINDOWS_ASSETS_DIR = 'windows/runner/resources';
 // const LINUX_ASSETS_DIR = 'linux/runner/resources';
 
-typedef AssetUsageScanResults = ({
-  List<String> pubspecAssets,
-  Set<String> allNormalizedLiterals,
-  Set<String> allAssets,
-  Set<String> usedAssets
-});
-
-typedef SearchServices = ({
-  AssetsSearchService assetService,
-  AndroidAssetsSearchService androidService,
-  IosAssetsSearchService iosService,
-});
+final pubspecNameRegex = RegExp(r'^\s*name:\s*([a-z0-9_]+)', multiLine: true);
+final pubspecEnvironmentRegex =
+    RegExp(r'^\s*environment:\s*\n(?:[ \t]+.+\n?)*', multiLine: true);
 
 class AssetUsageScanner {
   AssetUsageScanner({
     required this.fs,
-    SearchServices? searchServices,
     Console? console,
-  })  : searchServices = searchServices ??
-            (
-              assetService: AssetsSearchService(),
-              androidService: AndroidAssetsSearchService(),
-              iosService: IosAssetsSearchService()
-            ),
-        console = console ?? Console();
+  }) : console = console ?? Console();
 
   final FileSystemClient fs;
   final Console console;
-  final SearchServices searchServices;
 
-  Future<AssetUsageScanResults> init() {
-    return console.printLoading<AssetUsageScanResults>(
-        message: "Finding assets and their usage",
+  Future<Set<String>> getAllAssets() {
+    return console.printLoading(
+        message: 'Finding project assets...',
         work: () {
-          final pubspecAssets = getPubspecAssets();
-          final allNormalizedLiterals = getAllNormalizedLiterals();
-          final allAssets = getAllAssets();
-          if (allAssets.isEmpty) {
-            console.printWarning('No assets found in project');
-            throw 'No assets found in project';
-          }
-          final usedAssets = getUsedAssets(allAssets, allNormalizedLiterals);
-
-          return (
-            pubspecAssets: pubspecAssets,
-            allNormalizedLiterals: allNormalizedLiterals,
-            allAssets: allAssets,
-            usedAssets: usedAssets
-          );
+          return {
+            ...getFlutterAssets(),
+            ...getAndroidAssets(),
+            ...getIosAssets(),
+            ...getPubspecAssets()
+          };
         });
   }
 
-  List<String> getPubspecAssets() {
-    final pubspecContent = fs.readPubspec();
-    return searchServices.assetService
-        .extractPubspecAssets(pubspecContent, fs.projectRoot);
+  Set<String> getFlutterAssets() {
+    return findAllFilesInDirectory(ASSETS_DIR);
   }
 
-  Set<String> getAllNormalizedLiterals() {
-    return _mapAllDartFilesInProject((curFile) {
-      final literals = searchServices.assetService
-          .findAllStringLiteralsInFile(fs.readAsString(curFile));
-      return literals;
-    });
+  Set<String> getAndroidAssets() {
+    return findAllFilesInDirectory(ANDROID_ASSETS_DIR);
   }
 
-  Set<String> getAllAssets() {
-    return _findAllFilesInDirectories([ASSETS_DIR]);
+  Set<String> getIosAssets() {
+    return findAllFilesInDirectory(IOS_ASSETS_DIR);
   }
 
-  Set<String> getUsedAssets(
-      Set<String> allAssets, Set<String> allNormalizedLiterals) {
-    return searchServices.assetService
-        .matchAssetsAndStringLiterals(allAssets, allNormalizedLiterals);
+  Set<String> getPubspecAssets() {
+    return extractPubspecAssets();
   }
 
   // ===============
   // Helpers
   // ==============
 
-  /// Execute [mapper] on all Dart files in project
-  /// Aggregate the results and return
-  Set<String> _mapAllDartFilesInProject(Set<String> Function(String) mapper) {
-    final result = <String>{};
-    final libDir = p.join(fs.projectRoot, 'lib');
-    if (fs.directoryExists(libDir)) {
-      try {
-        for (var entity in fs.listFilesSync(libDir)) {
-          if (fs.isFile(entity) &&
-              entity.endsWith('.dart') &&
-              !_shouldIgnore(entity)) {
-            result.addAll(mapper(entity));
-          }
-        }
-      } catch (e) {
-        final msg = 'Error traversing directory $libDir: $e';
-        console.printError(msg);
-        throw msg;
-      }
-      return result;
-    } else {
-      final msg = 'Lib directory not found at ${fs.projectRoot}';
-      console.printError(msg);
-      throw msg;
+  /// Takes full raw text from pubspec.yaml and returns the list of assets from the
+  /// assets section if present
+  Set<String> extractPubspecAssets() {
+    final pubspecContent = fs.readPubspec();
+    if (!(pubspecNameRegex.hasMatch(pubspecContent) &&
+        pubspecEnvironmentRegex.hasMatch(pubspecContent))) {
+      throw 'Invalid Dart/Flutter pubspec.yaml file. Missing name: and environment: sections';
     }
+
+    final assetRegex = RegExp(r'assets:\s*((?:\s+-\s+.+\n)+)', multiLine: true);
+    final match = assetRegex.firstMatch(pubspecContent);
+    if (match == null) return {};
+    final assetLines = match
+        .group(1)!
+        .split('\n')
+        .where((line) => line.trim().startsWith('-'))
+        .map(
+          (line) => line
+              .trim()
+              .substring(1)
+              .trim()
+              .replaceAll("'", '')
+              .replaceAll('"', ''),
+        )
+        .toList();
+    final assets = <String>{};
+    for (var declaration in assetLines) {
+      final path =
+          p.relative(declaration, from: fs.projectRoot).replaceAll('\\', '/');
+      if (fs.isDirectory(path)) {
+        assets.addAll(fs.listFilesSync(path));
+      } else {
+        assets.add(path);
+      }
+    }
+    return assets;
   }
 
   /// Find all files in a directory
-  Set<String> _findAllFilesInDirectory(String dir, {bool isFirst = false}) {
+  Set<String> findAllFilesInDirectory(String dir) {
     final files = <String>{};
     if (!fs.directoryExists(dir)) {
-      // console.printWarning(
-      //     '${isFirst ? '\n' : ''}Assets directory not found at $dir');
       return files;
     }
     for (var entity in fs.listFilesSync(dir)) {
+      if (_shouldIgnore(dir)) continue;
       try {
         if (fs.isFile(entity)) {
           if (!p.basename(entity).startsWith('.')) {
@@ -145,7 +118,7 @@ class AssetUsageScanner {
     }
     if (files.isEmpty) {
       console.printWarning(
-          '\nNo files found in the assets directory /$dir (Excluding hidden files)');
+          '\nNo files found in the assets directory /$dir (Excluding hidden files and ignored dirs)');
     } else {
       console.printInfo(
         '\nFound ${files.length} files in /$dir',
@@ -156,16 +129,6 @@ class AssetUsageScanner {
       }
     }
     return files;
-  }
-
-  /// Find all files from a set of directories
-  Set<String> _findAllFilesInDirectories(List<String> directories) {
-    final result = <String>{};
-    for (var dir in directories) {
-      result.addAll(
-          _findAllFilesInDirectory(dir, isFirst: directories.first == dir));
-    }
-    return result;
   }
 
   bool _shouldIgnore(String path) {

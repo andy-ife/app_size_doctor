@@ -1,11 +1,11 @@
 import 'dart:io';
-import 'package:media_asset_optimizer/app/analysis_printer.dart';
-import 'package:media_asset_optimizer/app/asset_compressor.dart';
-import 'package:media_asset_optimizer/app/asset_usage_scanner.dart';
-import 'package:media_asset_optimizer/media_asset_optimizer.dart';
-import 'package:media_asset_optimizer/data/file_system_client.dart';
-import 'package:media_asset_optimizer/ui/cli.dart';
-import 'package:media_asset_optimizer/ui/console.dart';
+import 'package:media_asset_optimizer/src/app/analysis_printer.dart';
+import 'package:media_asset_optimizer/src/app/asset_compressor.dart';
+import 'package:media_asset_optimizer/src/app/asset_usage_scanner.dart';
+import 'package:media_asset_optimizer/src/runner.dart';
+import 'package:media_asset_optimizer/src/data/file_system_client.dart';
+import 'package:media_asset_optimizer/src/ui/cli.dart';
+import 'package:media_asset_optimizer/src/ui/console.dart';
 
 const test_asset_reference2 = 'test_pic2.jpg';
 const test_asset_reference3 = 'test_vid1.mp4';
@@ -75,7 +75,7 @@ class App {
       }
 
       // Start
-      final mediaOpt = MediaAssetOptimizer(
+      final runner = Runner(
           cliMode: cliMode,
           singleFile: cli.singleFile,
           assetCompressor: AssetCompressor(
@@ -87,7 +87,7 @@ class App {
             fs: scanner.fs,
           ));
 
-      await mediaOpt.run();
+      await runner.run();
     } catch (e) {
       console.printError(e.toString());
     } finally {

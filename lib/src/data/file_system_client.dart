@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'dart:typed_data';
-import 'package:media_asset_optimizer/exception/file_exception.dart';
+import 'package:media_asset_optimizer/src/exception/file_exception.dart';
 import 'package:path/path.dart' as p;
 
 /// Simple wrapper around dart:io

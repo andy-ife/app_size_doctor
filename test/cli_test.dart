@@ -1,4 +1,4 @@
-import 'package:media_asset_optimizer/ui/cli.dart';
+import 'package:media_asset_optimizer/src/ui/cli.dart';
 import 'package:test/test.dart';
 
 void main() {

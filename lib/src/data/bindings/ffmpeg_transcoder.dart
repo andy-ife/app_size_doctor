@@ -1,5 +1,5 @@
-import 'package:media_asset_optimizer/data/file_system_client.dart';
-import 'package:media_asset_optimizer/exception/file_exception.dart';
+import 'package:media_asset_optimizer/src/data/file_system_client.dart';
+import 'package:media_asset_optimizer/src/exception/file_exception.dart';
 
 class FfmpegTranscoder {
   /// Uses pre-installed ffmpeg binary on the user's system

@@ -30,7 +30,7 @@
 27. Add LICENSE
 28. Remove test assets
 29. Create example app
-30. Add file exceptions
+30. ~~Add file exceptions~~
 31. Test and add/remove more file extensions
 32. Harden program:
  - What if the required inputs are missing, null, or in an invalid format?
@@ -39,6 +39,7 @@
  - In a sequence of functions where each depends on the last, what happens when a previous one fails?
  - Are all possible return types/outputs handled?
 33. Add lib/src directory
-34. Wrap all app operations in app.dart in a try catch
+34. ~~Wrap all app operations in app.dart in a try catch~~
 35. ~~Keep the original media if compression fails (i.e new size is not smaller)~~
 36. Fix inaccurate pre-compression estimate
+37. Remove dart:io import from app.dart

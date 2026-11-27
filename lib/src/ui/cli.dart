@@ -1,5 +1,5 @@
 import 'package:args/args.dart';
-import 'package:media_asset_optimizer/ui/console.dart';
+import 'package:media_asset_optimizer/src/ui/console.dart';
 
 enum CliMode {
   compressAll('all', 'a'),

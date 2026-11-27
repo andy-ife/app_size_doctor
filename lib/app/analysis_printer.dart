@@ -41,11 +41,7 @@ class AnalysisPrinter {
     );
 
     console.printInfo(
-<<<<<<< Updated upstream
-      '• Total media assets size: ${result.spaceOfMediaAssetsBeforeCompress.toStorageString()}',
-=======
       '• Total media assets size: ${spaceBefore.toStorageString()}',
->>>>>>> Stashed changes
     );
 
     console.printInfo(

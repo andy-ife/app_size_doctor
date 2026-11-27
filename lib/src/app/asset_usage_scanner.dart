@@ -28,7 +28,7 @@ class AssetUsageScanner {
   final Console console;
 
   Future<Set<String>> getAllAssets() {
-    return console.printLoading(
+    return console.printLoading<Set<String>>(
         message: 'Finding project assets...',
         work: () {
           return {
@@ -87,8 +87,11 @@ class AssetUsageScanner {
         .toList();
     final assets = <String>{};
     for (var declaration in assetLines) {
-      final path =
-          p.relative(declaration, from: fs.projectRoot).replaceAll('\\', '/');
+      String path = declaration;
+      if (declaration.contains(fs.projectRoot)) {
+        path =
+            p.relative(declaration, from: fs.projectRoot).replaceAll('\\', '/');
+      }
       if (fs.isDirectory(path)) {
         assets.addAll(fs.listFilesSync(path));
       } else {

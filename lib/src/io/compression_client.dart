@@ -47,8 +47,12 @@ class CompressionClient {
     final output = compress(ImageFileConfiguration(
         input: input, config: Configuration(jpgQuality: _imageQuality)));
 
-    fs.writeAsBytes(path, output.rawBytes);
-    return (input.sizeInBytes - output.sizeInBytes).toDouble();
+    if (output.sizeInBytes < input.sizeInBytes) {
+      fs.writeAsBytes(path, output.rawBytes);
+      return (input.sizeInBytes - output.sizeInBytes).toDouble();
+    } else {
+      return 0;
+    }
   }
 
   double compressVideoOrAudio(String path) {

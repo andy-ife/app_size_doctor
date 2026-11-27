@@ -1,10 +1,13 @@
 import 'package:media_asset_optimizer/src/app/cli.dart';
 import 'package:test/test.dart';
 
+import '../mocks/mock_io.dart';
+
 void main() {
   group('Cli', () {
+    final mockConsole = MockConsole();
     test('parses quality with --all', () {
-      final cli = Cli();
+      final cli = Cli(console: mockConsole);
 
       expect(
         cli.start(['--all', '--quality', '75']),
@@ -14,21 +17,21 @@ void main() {
     });
 
     test('parses the short quality flag', () {
-      final cli = Cli();
+      final cli = Cli(console: mockConsole);
 
       expect(cli.start(['-a', '-q', '25']), CliMode.compressAll);
       expect(cli.quality, 25);
     });
 
     test('keeps quality null when not provided', () {
-      final cli = Cli();
+      final cli = Cli(console: mockConsole);
 
       expect(cli.start(['--all']), CliMode.compressAll);
       expect(cli.quality, isNull);
     });
 
     test('parses a single file', () {
-      final cli = Cli();
+      final cli = Cli(console: mockConsole);
 
       expect(
         cli.start(['--single-file', 'assets/logo.png']),
@@ -38,7 +41,7 @@ void main() {
     });
 
     test('parses the short single file flag', () {
-      final cli = Cli();
+      final cli = Cli(console: mockConsole);
 
       expect(cli.start(['-f', 'assets/logo.png']), CliMode.compressFile);
       expect(cli.singleFile, 'assets/logo.png');
@@ -46,7 +49,7 @@ void main() {
 
     test('rejects quality outside 1-100', () {
       for (final quality in ['0', '101', 'high']) {
-        final cli = Cli();
+        final cli = Cli(console: mockConsole);
         expect(
           cli.start(['--all', '--quality', quality]),
           CliMode.none,
@@ -55,12 +58,13 @@ void main() {
     });
 
     test('does not launch the tutorial for --select', () {
-      expect(Cli().start(['--select']), CliMode.compressSome);
+      expect(
+          Cli(console: mockConsole).start(['--select']), CliMode.compressSome);
     });
 
     test('parses the help flag', () {
-      expect(Cli().start(['-h']), CliMode.none);
-      expect(Cli().start(['--help']), CliMode.none);
+      expect(Cli(console: mockConsole).start(['-h']), CliMode.none);
+      expect(Cli(console: mockConsole).start(['--help']), CliMode.none);
     });
   });
 }

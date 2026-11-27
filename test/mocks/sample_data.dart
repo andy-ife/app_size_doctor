@@ -43,9 +43,18 @@ dev_dependencies:
     git:
       url: https://github.com/cfug/dio
       path: dio_test
+  
+  assets:
+  - assets/awesome_vid.mp4
+  - assets/awesome_aud.mp3
+  - assets/awesome_pic.jpg
+  - android/app/src/main/res/raw/alarm.wav
+  - android/app/src/main/res/drawable/background.png
+  - ios/Runner/Assets.xcassets/AppIcon.appiconset/AppIcon-20@2x.png
+  - ios/Runner/Assets.xcassets/LaunchBackground.imageset/background.png
 ''';
 
-const invalidNoNamePubspec = '''
+const invalidPubspec = '''
 version: 5.11.1
 
 description: |
@@ -90,3 +99,37 @@ dev_dependencies:
       url: https://github.com/cfug/dio
       path: dio_test
 ''';
+
+const samplePubspecAssets = {
+  '$SAMPLE_PROJECT_ROOT/assets/awesome_vid.mp4',
+  '$SAMPLE_PROJECT_ROOT/assets/awesome_aud.mp3',
+  '$SAMPLE_PROJECT_ROOT/assets/awesome_pic.jpg',
+  '$SAMPLE_PROJECT_ROOT/android/app/src/main/res/raw/alarm.wav',
+  '$SAMPLE_PROJECT_ROOT/android/app/src/main/res/drawable/background.png',
+  '$SAMPLE_PROJECT_ROOT/ios/Runner/Assets.xcassets/AppIcon.appiconset/AppIcon-20@2x.png',
+  '$SAMPLE_PROJECT_ROOT/ios/Runner/Assets.xcassets/LaunchBackground.imageset/background.png'
+};
+
+const sampleFlutterAssets = {
+  '$SAMPLE_PROJECT_ROOT/assets/images/logo.png',
+  '$SAMPLE_PROJECT_ROOT/assets/images/banner.jpg',
+  '$SAMPLE_PROJECT_ROOT/assets/icons/home.svg',
+  '$SAMPLE_PROJECT_ROOT/assets/audio/alert.wav',
+  '$SAMPLE_PROJECT_ROOT/assets/videos/intro.mp4',
+};
+
+const sampleAndroidAssets = {
+  '$SAMPLE_PROJECT_ROOT/android/app/src/main/res/drawable/background.png',
+  '$SAMPLE_PROJECT_ROOT/android/app/src/main/res/drawable-hdpi/icon.png',
+  '$SAMPLE_PROJECT_ROOT/android/app/src/main/res/raw/alarm.wav',
+  '$SAMPLE_PROJECT_ROOT/android/app/src/main/res/raw/theme.mp3',
+};
+
+const sampleIosAssets = {
+  '$SAMPLE_PROJECT_ROOT/ios/Runner/Assets/Assets.xcassets/AppIcon.appiconset/AppIcon-20@2x.png',
+  '$SAMPLE_PROJECT_ROOT/ios/Runner/Assets/Assets.xcassets/LaunchBackground.imageset/background.png',
+  '$SAMPLE_PROJECT_ROOT/ios/Runner/Assets/Assets.xcassets/Sounds/alert.wav',
+};
+
+const SAMPLE_PROJECT_ROOT = 'rootProj';
+const SAMPLE_IGNORED_DIRS = ['test', 'build'];

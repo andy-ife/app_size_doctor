@@ -95,18 +95,6 @@ class AnalysisPrinter {
         '\nRun again without --dry-run to view detailed file trees and apply these changes.');
   }
 
-  int countFilesInTree(Map<String, dynamic> node) {
-    int count = 0;
-    for (final key in node.keys) {
-      if (node[key] is Map) {
-        count += countFilesInTree(node[key]);
-      } else {
-        count++;
-      }
-    }
-    return count;
-  }
-
   void printWorkSummary(CompressResult? compressResult) {
     final hasCompressed = compressResult != null &&
         compressResult.hasCompressed &&

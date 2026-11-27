@@ -1,6 +1,6 @@
 import 'package:media_asset_optimizer/src/app/asset_compressor.dart';
-import 'package:media_asset_optimizer/src/data/file_system_client.dart';
-import 'package:media_asset_optimizer/src/ui/console.dart';
+import 'package:media_asset_optimizer/src/io/file_system_client.dart';
+import 'package:media_asset_optimizer/src/io/console.dart';
 import 'package:media_asset_optimizer/src/utils/extension.dart';
 
 class AnalysisPrinter {

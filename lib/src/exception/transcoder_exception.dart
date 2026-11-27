@@ -1,4 +1,4 @@
-import 'package:media_asset_optimizer/src/data/file_system_client.dart';
+import 'package:media_asset_optimizer/src/io/file_system_client.dart';
 import 'package:media_asset_optimizer/src/exception/file_exception.dart';
 
 sealed class TranscoderException implements Exception {

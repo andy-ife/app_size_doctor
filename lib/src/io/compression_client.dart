@@ -1,7 +1,7 @@
-import 'package:media_asset_optimizer/src/data/bindings/av_transcoder.dart';
-import 'package:media_asset_optimizer/src/data/bindings/ffmpeg_transcoder.dart';
-import 'package:media_asset_optimizer/src/data/bindings/mf_transcoder.dart';
-import 'package:media_asset_optimizer/src/data/file_system_client.dart';
+import 'package:media_asset_optimizer/src/io/bindings/av_transcoder.dart';
+import 'package:media_asset_optimizer/src/io/bindings/ffmpeg_transcoder.dart';
+import 'package:media_asset_optimizer/src/io/bindings/mf_transcoder.dart';
+import 'package:media_asset_optimizer/src/io/file_system_client.dart';
 import 'package:media_asset_optimizer/src/exception/transcoder_exception.dart';
 import 'package:media_asset_optimizer/src/utils/asset_utils.dart';
 import 'package:path/path.dart' as p;

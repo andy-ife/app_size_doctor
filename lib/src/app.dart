@@ -2,9 +2,9 @@ import 'package:media_asset_optimizer/src/app/analysis_printer.dart';
 import 'package:media_asset_optimizer/src/app/asset_compressor.dart';
 import 'package:media_asset_optimizer/src/app/asset_usage_scanner.dart';
 import 'package:media_asset_optimizer/src/runner.dart';
-import 'package:media_asset_optimizer/src/data/file_system_client.dart';
-import 'package:media_asset_optimizer/src/ui/cli.dart';
-import 'package:media_asset_optimizer/src/ui/console.dart';
+import 'package:media_asset_optimizer/src/io/file_system_client.dart';
+import 'package:media_asset_optimizer/src/app/cli.dart';
+import 'package:media_asset_optimizer/src/io/console.dart';
 
 const test_asset_reference2 = 'test_pic2.jpg';
 const test_asset_reference3 = 'test_vid1.mp4';

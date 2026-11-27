@@ -1,6 +1,6 @@
 import 'package:media_asset_optimizer/src/app/analysis_printer.dart';
 import 'package:media_asset_optimizer/src/app/asset_compressor.dart';
-import 'package:media_asset_optimizer/src/ui/cli.dart';
+import 'package:media_asset_optimizer/src/app/cli.dart';
 
 class Runner {
   const Runner(

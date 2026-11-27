@@ -3,15 +3,18 @@ version: 1.0.0
 description: Compress image, video, and audio assets to reduce your app size
 
 topics:
-  - compression
-  - optimization
   - assets
   - media
+  - compression
   - image-compression
+  - video-compression
 
 homepage: https://github.com/andy-ife/media_asset_optimizer
 repository: https://github.com/andy-ife/media_asset_optimizer
 issue_tracker: https://github.com/andy-ife/media_asset_optimizer/issues
+
+maintainer: Ifeoluwa Andrew Omole
+email: iomole3@gmail.com
 
 environment:
   sdk: ^3.0.0

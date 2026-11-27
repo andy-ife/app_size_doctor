@@ -9,14 +9,11 @@ environment:
 dependencies:
   args: ^2.7.0
   path: ^1.9.1
-
-  # Image
   image_compression: ^1.0.5
-
-  # TODO: Implement custom single & multi select lists and remove this dependency
-  interact_cli: ^2.4.0
   ffi: ^2.2.0
+  interact_cli: ^2.4.0
 
 dev_dependencies:
   lints: ^6.0.0
+  mocktail: ^1.0.5
   test: ^1.25.6

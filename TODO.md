@@ -43,3 +43,4 @@
 35. ~~Keep the original media if compression fails (i.e new size is not smaller)~~
 36. Fix inaccurate pre-compression estimate
 37. ~~Remove dart:io import from app.dart~~
+38. Add topics, homepage, repository, issue_tracker to pubspec.yaml

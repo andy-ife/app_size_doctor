@@ -197,14 +197,14 @@ class AssetCompressor {
             message:
                 'Compressing ${curResult.assetsForCompression.length} asset(s)',
             work: () {
-              final justFreed = _compress(curResult.assetsForCompression);
-              if (justFreed > 0) {
+              final freed = _compress(curResult.assetsForCompression);
+              if (freed > 0) {
                 console.printSuccess(
-                    '\n✨ You have freed up ${justFreed.toStorageString()} of space.');
+                    '\n✨ You have freed up ${freed.toStorageString()} of space.');
               } else {
                 console.printError('Unable to compress some assets');
               }
-              return justFreed.clamp(0, double.infinity); // no negative nums
+              return freed.clamp(0, double.infinity); // no negative nums
             });
       } else if (finalConfirm.isNo) {
         console.printError('Compression cancelled by user.');
@@ -236,8 +236,8 @@ class AssetCompressor {
       }
       try {
         final res = client.compressMedia(path);
-        result += (res ?? 0);
         if (res != null && res > 0) {
+          result += res;
           console.printSuccess(
               '\nCompressed: $assetRelativePath: -${res.toStorageString()}');
         } else {

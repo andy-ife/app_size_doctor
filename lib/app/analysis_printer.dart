@@ -16,7 +16,7 @@ class AnalysisPrinter {
     final isAll =
         result.allMediaAssets.length == result.assetsForCompression.length;
     console.printWarning(
-        '🔨 Assets MARKED FOR COMPRESSION (${isAll ? 'All' : 'Selected'} assets${isAll ? '' : ' only'}):');
+        '\n🔨 Assets MARKED FOR COMPRESSION (${isAll ? 'All' : 'Selected'} assets${isAll ? '' : ' only'}):');
     if (result.assetsForCompression.isNotEmpty) {
       console.printWarning('(${result.assetsForCompression.length} files)');
       console.printTree(paths: result.assetsForCompressionTree, prefix: '');
@@ -29,6 +29,7 @@ class AnalysisPrinter {
     final totalForCompression = selectedAssets.length;
     final totalNotSelected =
         result.allMediaAssets.difference(selectedAssets).length;
+    final spaceBefore = result.spaceOfMediaAssetsBeforeCompress;
 
     console.printSubHeader('Pre-compression Summary:');
     console.printInfo(
@@ -40,7 +41,11 @@ class AnalysisPrinter {
     );
 
     console.printInfo(
+<<<<<<< Updated upstream
       '• Total media assets size: ${result.spaceOfMediaAssetsBeforeCompress.toStorageString()}',
+=======
+      '• Total media assets size: ${spaceBefore.toStorageString()}',
+>>>>>>> Stashed changes
     );
 
     console.printInfo(

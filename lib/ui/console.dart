@@ -5,6 +5,7 @@ import 'dart:isolate';
 import 'dart:math';
 
 import 'package:interact_cli/interact_cli.dart';
+import 'package:media_asset_optimizer/exception/file_exception.dart';
 import 'package:path/path.dart' as p;
 
 const String reset = '\x1B[0m';
@@ -156,7 +157,7 @@ class Console {
       ).interact();
     } catch (e) {
       resetConsole();
-      rethrow;
+      throw GeneralFileException(message: e.toString());
     }
   }
 
@@ -192,7 +193,7 @@ class Console {
       ).interact();
     } catch (e) {
       resetConsole();
-      rethrow;
+      throw GeneralFileException(message: e.toString());
     }
   }
 

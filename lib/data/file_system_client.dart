@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:typed_data';
+import 'package:media_asset_optimizer/exception/file_exception.dart';
 import 'package:path/path.dart' as p;
 
 /// Simple wrapper around dart:io
@@ -26,7 +27,7 @@ class FileSystemClient {
       }
       final parentDir = dir.parent;
       if (parentDir.path == dir.path) {
-        throw Exception('Could not find project root with pubspec.yaml');
+        throw ProjectRootNotFoundException();
       }
       dir = parentDir;
     }
@@ -125,7 +126,7 @@ class FileSystemClient {
         }
       }
     } catch (e) {
-      rethrow;
+      throw GeneralFileException(message: e.toString());
     }
     return files;
   }

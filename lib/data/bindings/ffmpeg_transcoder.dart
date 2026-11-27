@@ -1,4 +1,5 @@
 import 'package:media_asset_optimizer/data/file_system_client.dart';
+import 'package:media_asset_optimizer/exception/file_exception.dart';
 
 class FfmpegTranscoder {
   /// Uses pre-installed ffmpeg binary on the user's system
@@ -49,7 +50,7 @@ class FfmpegTranscoder {
     try {
       result = fs.runProcess(command, args);
     } catch (e) {
-      rethrow;
+      throw FFmpegProcessException(reason: e.toString());
     }
 
     return (status: result.exitCode, hresult: result.exitCode);

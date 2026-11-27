@@ -41,52 +41,58 @@ class App {
     }
 
     // App
-    final ignoredDirs = ['test', 'build'];
+    try {
+      final ignoredDirs = ['test', 'build'];
 
-    final fs = FileSystemClient(
-      ignoredDirs: ignoredDirs,
-    );
+      final fs = FileSystemClient(
+        ignoredDirs: ignoredDirs,
+      );
 
-    if (fs.projectRoot != Directory.current.path) {
-      console.printInfo('Changed project root to: ${fs.projectRoot}');
-    }
+      if (fs.projectRoot != Directory.current.path) {
+        console.printInfo('Changed project root to: ${fs.projectRoot}');
+      }
 
-    final scanner = AssetUsageScanner(fs: fs);
+      final scanner = AssetUsageScanner(fs: fs);
 
-    final cli = Cli();
-    final cliMode = cli.start(args);
+      final cli = Cli();
+      final cliMode = cli.start(args);
 
-    if (cliMode == CliMode.none) {
+      if (cliMode == CliMode.none) {
+        exit(0);
+      }
+
+      final Set<String> allAssets;
+      if (cliMode == CliMode.compressFile) {
+        // A single file does not need the whole project scanned.
+        allAssets = {};
+      } else {
+        allAssets = await scanner.getAllAssets();
+      }
+
+      if (allAssets.isEmpty && cliMode != CliMode.compressFile) {
+        console.printInfo('\nNo assets found in the project. Exiting.');
+        exit(0);
+      }
+
+      // Start
+      final mediaOpt = MediaAssetOptimizer(
+          cliMode: cliMode,
+          singleFile: cli.singleFile,
+          assetCompressor: AssetCompressor(
+            allAssets: allAssets,
+            fs: scanner.fs,
+            quality: cli.quality,
+          ),
+          analysisPrinter: AnalysisPrinter(
+            fs: scanner.fs,
+          ));
+
+      await mediaOpt.run();
+    } catch (e) {
+      console.printError(e.toString());
+    } finally {
+      cleanup();
       exit(0);
     }
-
-    final Set<String> allAssets;
-    if (cliMode == CliMode.compressFile) {
-      // A single file does not need the whole project scanned.
-      allAssets = {};
-    } else {
-      allAssets = await scanner.getAllAssets();
-    }
-
-    if (allAssets.isEmpty && cliMode != CliMode.compressFile) {
-      console.printInfo('\nNo assets found in the project. Exiting.');
-      exit(0);
-    }
-
-    // Start
-    final mediaOpt = MediaAssetOptimizer(
-        cliMode: cliMode,
-        singleFile: cli.singleFile,
-        assetCompressor: AssetCompressor(
-          allAssets: allAssets,
-          fs: scanner.fs,
-          quality: cli.quality,
-        ),
-        analysisPrinter: AnalysisPrinter(
-          fs: scanner.fs,
-        ));
-
-    await mediaOpt.run();
-    exit(0);
   }
 }

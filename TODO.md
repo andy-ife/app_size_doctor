@@ -25,7 +25,7 @@
 23. Move away from interact_cli dependency. Implement our own custom list selector
 
 24. ~~Add support for Android, iOS asset folders~~
-25. Build the dynamic C libraries for Windows and macOS
+25. ~~Build the dynamic C libraries for Windows and macOS~~
 26. Write tests and setup CI
 27. Add LICENSE
 28. Remove test assets

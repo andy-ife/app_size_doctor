@@ -1,4 +1,5 @@
 import 'package:media_asset_optimizer/data/file_system_client.dart';
+import 'package:media_asset_optimizer/exception/file_exception.dart';
 import 'package:media_asset_optimizer/ui/console.dart';
 import 'package:media_asset_optimizer/utils/asset_utils.dart';
 import 'package:path/path.dart' as p;
@@ -65,7 +66,7 @@ class AssetUsageScanner {
     final pubspecContent = fs.readPubspec();
     if (!(pubspecNameRegex.hasMatch(pubspecContent) &&
         pubspecEnvironmentRegex.hasMatch(pubspecContent))) {
-      throw 'Invalid Dart/Flutter pubspec.yaml file. Missing name: and environment: sections';
+      throw InvalidPubspecFileException();
     }
 
     final assetRegex = RegExp(r'assets:\s*((?:\s+-\s+.+\n)+)', multiLine: true);

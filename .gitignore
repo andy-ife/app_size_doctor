@@ -15,6 +15,9 @@ pubspec.lock
 CMakeLists.txt
 build/
 
+# VS code settings
+.vscode/
+
 # Test folders for development
 assets/
 fonts/

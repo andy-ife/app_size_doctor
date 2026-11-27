@@ -1,4 +1,5 @@
 import 'package:media_asset_optimizer/data/file_system_client.dart';
+import 'package:media_asset_optimizer/exception/file_exception.dart';
 
 sealed class TranscoderException implements Exception {
   final int? osCode;
@@ -115,10 +116,30 @@ class FfmpegNotFoundException extends TranscoderException {
       'Ffmpeg not found. Please download ffmpeg and add it to your PATH or specify `ffmpegPath` as an argument\nhttps://ffmpeg.org/download.html';
 }
 
+class FfmpegTranscodingFailedException extends TranscoderException {
+  const FfmpegTranscodingFailedException(super.osCode);
+  @override
+  String toString() =>
+      'Ffmpeg transcoding failed. The file format or codec may be unsupported: $osCode';
+}
+
+class InsufficientFfmpegPermissionsException extends TranscoderException {
+  const InsufficientFfmpegPermissionsException(super.osCode);
+  @override
+  String toString() =>
+      'Insufficient permissions to execute `ffmpeg`. Please ensure `ffmpeg is executable and you have sufficient permissions to run it: $osCode`';
+}
+
+class OutOfMemoryException extends TranscoderException {
+  const OutOfMemoryException(super.osCode);
+  @override
+  String toString() => 'Out of memory while running ffmpeg: $osCode';
+}
+
 TranscoderException getTranscoderException(
     dynamic code, int? osCode, FileSystemClient fs) {
   if (code is Exception) {
-    throw code;
+    throw GeneralFileException(message: code.toString());
   } else if (code is int) {
     if (fs.isWindows) {
       late final TranscoderException error;
@@ -196,8 +217,17 @@ TranscoderException getTranscoderException(
     } else if (fs.isLinux) {
       late final TranscoderException error;
       switch (code) {
+        case 126:
+          error = InsufficientFfmpegPermissionsException(osCode);
+          break;
         case 127:
           error = FfmpegNotFoundException(null);
+          break;
+        case 137:
+          error = OutOfMemoryException(osCode);
+          break;
+        case 234:
+          error = FfmpegTranscodingFailedException(osCode);
           break;
         default:
           error = UnexpectedException(osCode);

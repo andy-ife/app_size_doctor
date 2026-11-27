@@ -38,8 +38,8 @@
  - What happens during asynchronous exceptions?
  - In a sequence of functions where each depends on the last, what happens when a previous one fails?
  - Are all possible return types/outputs handled?
-33. Add lib/src directory
+33. ~~Add lib/src directory~~
 34. ~~Wrap all app operations in app.dart in a try catch~~
 35. ~~Keep the original media if compression fails (i.e new size is not smaller)~~
 36. Fix inaccurate pre-compression estimate
-37. Remove dart:io import from app.dart
+37. ~~Remove dart:io import from app.dart~~

@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:media_asset_optimizer/src/app/analysis_printer.dart';
 import 'package:media_asset_optimizer/src/app/asset_compressor.dart';
 import 'package:media_asset_optimizer/src/app/asset_usage_scanner.dart';
@@ -21,34 +20,25 @@ const test_asset_ref12 = 'test_pic7.avif';
 const test_asset_ref13 = 'test_vid2.webm';
 
 class App {
-  static final console = Console();
-
-  static void cleanup() async {
-    console.resetConsole();
+  App({FileSystemClient? fs, Console? console}) {
+    this.fs = fs ??
+        FileSystemClient(
+          ignoredDirs: ['test', 'build'],
+        );
+    this.console = console ?? Console();
   }
 
-  static void start(List<String> args) async {
-    ProcessSignal.sigint.watch().listen((signal) {
-      cleanup();
-      exit(0);
-    });
+  late final FileSystemClient fs;
+  late final Console console;
 
-    if (!Platform.isWindows) {
-      ProcessSignal.sigterm.watch().listen((signal) {
-        cleanup();
-        exit(0);
-      });
-    }
+  void start(List<String> args) async {
+    fs.cleanupOnAppExit(onExit: () {
+      cleanup();
+    });
 
     // App
     try {
-      final ignoredDirs = ['test', 'build'];
-
-      final fs = FileSystemClient(
-        ignoredDirs: ignoredDirs,
-      );
-
-      if (fs.projectRoot != Directory.current.path) {
+      if (fs.projectRoot != fs.currentDir) {
         console.printInfo('Changed project root to: ${fs.projectRoot}');
       }
 
@@ -58,7 +48,7 @@ class App {
       final cliMode = cli.start(args);
 
       if (cliMode == CliMode.none) {
-        exit(0);
+        fs.exitApp(0);
       }
 
       final Set<String> allAssets;
@@ -71,20 +61,20 @@ class App {
 
       if (allAssets.isEmpty && cliMode != CliMode.compressFile) {
         console.printInfo('\nNo assets found in the project. Exiting.');
-        exit(0);
+        fs.exitApp(0);
       }
 
       // Start
       final runner = Runner(
           cliMode: cliMode,
           singleFile: cli.singleFile,
-          assetCompressor: AssetCompressor(
+          compressor: AssetCompressor(
             allAssets: allAssets,
-            fs: scanner.fs,
+            fs: fs,
             quality: cli.quality,
           ),
-          analysisPrinter: AnalysisPrinter(
-            fs: scanner.fs,
+          printer: AnalysisPrinter(
+            fs: fs,
           ));
 
       await runner.run();
@@ -92,7 +82,11 @@ class App {
       console.printError(e.toString());
     } finally {
       cleanup();
-      exit(0);
+      fs.exitApp(0);
     }
+  }
+
+  void cleanup() {
+    console.resetConsole();
   }
 }

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:media_asset_optimizer/src/exception/file_exception.dart';
@@ -40,6 +41,24 @@ class FileSystemClient {
     final result = Process.runSync(executable, args);
     return FsProcessResult(result.exitCode);
   }
+
+  void exitApp(int code) {
+    exit(code);
+  }
+
+  void cleanupOnAppExit({required Function onExit}) {
+    ProcessSignal.sigint.watch().listen((signal) {
+      onExit();
+    });
+
+    if (!Platform.isWindows) {
+      ProcessSignal.sigterm.watch().listen((signal) {
+        onExit();
+      });
+    }
+  }
+
+  void cleanup() {}
 
   // ===========
   // Platform

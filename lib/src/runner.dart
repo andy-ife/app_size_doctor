@@ -5,8 +5,8 @@ import 'package:media_asset_optimizer/src/ui/cli.dart';
 class Runner {
   const Runner(
       {required this.cliMode,
-      required this.assetCompressor,
-      required this.analysisPrinter,
+      required this.compressor,
+      required this.printer,
       this.singleFile});
 
   final CliMode cliMode;
@@ -14,8 +14,8 @@ class Runner {
   /// Asset to compress when [cliMode] is [CliMode.compressFile].
   final String? singleFile;
 
-  final AssetCompressor assetCompressor;
-  final AnalysisPrinter analysisPrinter;
+  final AssetCompressor compressor;
+  final AnalysisPrinter printer;
 
   Future<void> run() async {
     switch (cliMode) {
@@ -26,7 +26,7 @@ class Runner {
           if (result == null) return;
 
           if (result.hasCompressed) {
-            analysisPrinter.printWorkSummary(result);
+            printer.printWorkSummary(result);
           }
           break;
         }
@@ -36,9 +36,9 @@ class Runner {
           if (assetPath == null) {
             break;
           }
-          final result = await assetCompressor.compressFile(assetPath);
+          final result = await compressor.compressFile(assetPath);
           if (result != null && result.hasCompressed) {
-            analysisPrinter.printWorkSummary(result);
+            printer.printWorkSummary(result);
           }
           break;
         }
@@ -55,16 +55,16 @@ class Runner {
   }
 
   Future<void> dryRun() async {
-    final compressResult = assetCompressor.analyze();
+    final compressResult = compressor.analyze();
 
-    analysisPrinter.printDryRunAnalysis(compressResult);
+    printer.printDryRunAnalysis(compressResult);
   }
 
   Future<CompressResult?> compress({required bool selectAssetsToIgnore}) async {
-    final compress0 = assetCompressor.analyze();
-    analysisPrinter.printCompressAnalysis(compress0);
+    final compress0 = compressor.analyze();
+    printer.printCompressAnalysis(compress0);
 
-    final compress1 = await assetCompressor.compressMultiple(
+    final compress1 = await compressor.compressMultiple(
         selectAssetsToIgnore: selectAssetsToIgnore);
     return compress1;
   }
